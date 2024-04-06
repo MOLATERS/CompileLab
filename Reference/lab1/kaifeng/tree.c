@@ -12,7 +12,7 @@ int synError = 0;
 int convert2num(char* text){
     int num=0;
     //hex
-    if (text[0]=='0'&&(text[1]=='x'||text[1]=='X'))
+    if (text[0]=='0'&&(text[1]=='x'||text[1]=='X')) // 表示是16进制的数
     {
         text+=2;
         while (*text != '\0')
@@ -31,9 +31,9 @@ int convert2num(char* text){
     //dec
     else if(text[0]!='0'||(text[0]=='0'&& text[1]=='\0'))
     {
-        num = atoi(text);
+        num = atoi(text); //直接转化成整数值
     }
-    else{
+    else{ // 表示的是8进制的数字
         text += 1;
         while (*text != '\0')
         {
@@ -49,17 +49,14 @@ struct AFT* addNode(int line, char* name, enum TYPE type, int argc, ...) {
     // Allocate new node memory
     struct AFT* newNode = (struct AFT*)malloc(sizeof(struct AFT));
     assert(newNode != NULL); // make sure success allocate
-
     // init
     newNode->line = line;
     newNode->name = strdup(name); // duplite name
     newNode->type = type;
     newNode->child = NULL;
     newNode->brother = NULL;
-
     va_list args;
     va_start(args, argc);
-
     if (argc > 0) {
         struct AFT* firstChild = va_arg(args, struct AFT*);
         newNode->child = firstChild;
@@ -82,11 +79,9 @@ struct AFT* addNode(int line, char* name, enum TYPE type, int argc, ...) {
 struct AFT* addLeaf(int line, char* name, enum TYPE type, char* val){
     struct AFT* leafNode = (struct AFT*)malloc(sizeof(struct AFT));
     assert(leafNode != NULL);
-
     leafNode->line = line;
     leafNode->name = strdup(name);
     leafNode->type = type;
-    
     switch (type) {
         case TOKEN_INT:
             leafNode->value.i = convert2num(val); // 将字符串转换为十进制整数
@@ -110,39 +105,32 @@ struct AFT* addLeaf(int line, char* name, enum TYPE type, char* val){
 
     return leafNode;
 }
+
 void release(struct AFT* node){
     if (node == NULL) return;
-
     // 释放所有子节点
     while (node->child != NULL) {
         struct AFT* temp = node->child;
         node->child = node->child->brother; // 移动到下一个兄弟节点
         release(temp); // 递归释放子节点
     }
-
-
     // 根据节点类型释放资源
     if (node->type == TOKEN_ID) {
         free(node->value.id); // 释放ID类型的值
     }
-
     free(node->name); // 释放节点名称
     free(node); // 最后释放节点本身
-
 }
 
 void preorder(struct AFT* node, int layer) {
     if (node == NULL) {
         return;
     }
-
     for (int i = 0; i < layer; i++) {
         printf("  ");
     }
-
     // 打印节点名称
     printf("%s", node->name);
-
     // 根据节点类型打印值或其他信息
     switch (node->type) {
         case TOKEN_TYPE:

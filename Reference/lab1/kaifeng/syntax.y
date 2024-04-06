@@ -14,13 +14,14 @@ extern int synError;
 }
 
 /*tokens*/
-%token <node> INT FLOAT ID
-%token <node> SEMI COMMA ASSIGNOP RELOP PLUS MINUS STAR DIV
-%token <node> AND OR DOT NOT TYPE LP RP LB RB LC RC 
-%token <node> STRUCT RETURN IF ELSE WHILE
+%token <node> INT FLOAT ID // 表示数据的类型
+%token <node> SEMI COMMA ASSIGNOP RELOP PLUS MINUS STAR DIV // 表示数据的运算符
+%token <node> AND OR DOT NOT TYPE LP RP LB RB LC RC // 表示逻辑运算符
+%token <node> STRUCT RETURN IF ELSE WHILE // 表示关键字
+
 
 /*no-terminals*/
-%type <node> Program ExtDefList ExtDef ExtDecList
+%type <node> Program ExtDefList ExtDef ExtDecList 
 %type <node> Specifier StructSpecifier OptTag Tag 
 %type <node> VarDec FunDec VarList ParamDec CompSt
 %type <node> StmtList Stmt DefList Def DecList Dec Exp Args

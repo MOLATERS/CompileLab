@@ -20,13 +20,13 @@ INT8 [+-]?0[1-7][0-7]*
 INT10 [+-]?(0|[1-9][0-9]*)
 INT16 [+-]?0[Xx][0-9a-fA-F]+
 INT {INT8}|{INT10}|{INT16}
- /*浮点型*/
+/*浮点型*/
 FLOAT ({INT10}\.[0-9]+)|([+-]?([0-9]*\.[0-9]+|[0-9]+\.[0-9]*)[Ee][+-]?[0-9]+)
- /*数字*/
+/*数字*/
 NUMBER {INT}|{FLOAT}
- /*标识符*/
+/*标识符*/
 ID [a-zA-Z_][a-zA-Z0-9_]*
- /*标点*/
+/*标点*/
 SEMI  ;
 COMMA ,
 ASSIGNOP =
@@ -57,7 +57,7 @@ LINE_COMMENT ("//"[.]*)
 BLOCK_COMMENT "/\*"[.]*"\*/"
 COMMENT {LINE_COMMENT}|{BLOCK_COMMENT}
  /*空格*/
-SPACE [ \n\r\t]+
+SPACE [\n\r\t]+
  /*错误*/
 AERROR .
 INT8_ERROR 0[0-7]*[8-9]+[0-7]*
@@ -123,7 +123,6 @@ ID_ERROR [0-9]+[a-zA-Z_]+
 {ID} { yylval.node = addLeaf(yylineno, "ID", TOKEN_ID, yytext); return ID;}
 {INT} { yylval.node = addLeaf(yylineno, "INT", TOKEN_INT, yytext); return INT;}
 {FLOAT} { yylval.node = addLeaf(yylineno, "FLOAT", TOKEN_FLOAT, yytext); return FLOAT;}
-
 
 {AERROR} { 
     lexError = 1;

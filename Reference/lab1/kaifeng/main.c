@@ -1,7 +1,7 @@
-
 #include "tree.h"
 #include "syntax.tab.h"
 #include "stdio.h"
+
 extern treeNode root;
 extern int yylineno;
 extern int yyparse();

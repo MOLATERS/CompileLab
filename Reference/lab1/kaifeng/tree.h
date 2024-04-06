@@ -5,7 +5,6 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <assert.h>
 #include <ctype.h>
 enum TYPE{
@@ -18,8 +17,8 @@ enum TYPE{
     NODE_NULL
 };
 struct AFT{
-    int line; //number of line where the node is located
-    char* name; // name of node
+    int line;   //number of line where the node is located
+    char* name;      // name of node
     enum TYPE type; // type of node(terminator or non-terminator)(for printer)
     union{ // value of node(if they have)
         int i;
