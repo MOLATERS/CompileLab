@@ -69,13 +69,13 @@
 /* First part of user prologue.  */
 #line 1 "syntax.y"
 
-# include "lex.yy.c"
-# include <unistd.h>
-# include <stdio.h>   
-# include "tree.h"
-treeNode root;
+#include "lex.yy.c"
+#include "unistd.h"
+#include "stdio.h"
+#include "parser.h"
+
 extern int synError;
-//#define YYERROR_VERBOSE 1
+struct TNode* root;
 
 #line 81 "syntax.tab.c"
 
@@ -488,7 +488,7 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  13
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   260
+#define YYLAST   240
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  31
@@ -547,15 +547,15 @@ static const yytype_int8 yytranslate[] =
 
 #if YYDEBUG
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
-static const yytype_uint8 yyrline[] =
+static const yytype_int8 yyrline[] =
 {
-       0,    41,    41,    43,    44,    46,    47,    48,    49,    51,
-      52,    56,    57,    59,    60,    62,    63,    65,    69,    70,
-      71,    73,    74,    75,    77,    78,    80,    83,    84,    86,
-      87,    89,    90,    91,    92,    93,    94,    95,    98,    99,
-     101,   103,   104,   106,   107,   110,   111,   112,   113,   114,
-     115,   116,   117,   118,   119,   120,   121,   122,   123,   124,
-     125,   126,   127,   129,   130
+       0,    37,    37,    39,    40,    42,    43,    44,    45,    47,
+      48,    52,    53,    55,    56,    58,    59,    61,    65,    66,
+      67,    69,    70,    71,    73,    74,    76,    79,    80,    82,
+      83,    85,    86,    87,    88,    89,    90,    91,    94,    95,
+      97,    99,   100,   102,   103,   106,   107,   108,   109,   110,
+     111,   112,   113,   114,   115,   116,   117,   118,   119,   120,
+     121,   122,   123,   125,   126
 };
 #endif
 
@@ -612,7 +612,7 @@ static const yytype_int16 yypact[] =
     -102,  -102,    72,    37,    58,   164,   120,    94,    94,  -102,
     -102,  -102,    94,    94,    94,    94,    94,    94,    94,    94,
      133,    94,   206,  -102,  -102,   135,   119,  -102,  -102,   178,
-     192,   206,   239,    37,    37,    58,    58,   232,   219,  -102,
+     192,   206,    37,    37,    37,    58,    58,   219,   219,  -102,
      149,    94,  -102,    67,    67,  -102,  -102,   112,  -102,    67,
     -102
 };
@@ -681,9 +681,7 @@ static const yytype_int8 yytable[] =
       82,    83,    84,    85,    86,    87,    88,    89,    90,     0,
        0,     0,   114,    91,    82,    83,    84,    85,    86,    87,
       88,    89,    90,     0,     0,     0,     0,    91,    83,    84,
-      85,    86,    87,    88,     0,    90,     0,     0,     0,     0,
-      91,    83,    84,    85,    86,    87,     0,     0,    90,    84,
-      85,    86,    87,    91,     0,    90,     0,     0,     0,     0,
+      85,    86,    87,     0,     0,    90,     0,     0,     0,     0,
       91
 };
 
@@ -712,9 +710,7 @@ static const yytype_int8 yycheck[] =
        8,     9,    10,    11,    12,    13,    14,    15,    16,    -1,
       -1,    -1,    20,    21,     8,     9,    10,    11,    12,    13,
       14,    15,    16,    -1,    -1,    -1,    -1,    21,     9,    10,
-      11,    12,    13,    14,    -1,    16,    -1,    -1,    -1,    -1,
-      21,     9,    10,    11,    12,    13,    -1,    -1,    16,    10,
-      11,    12,    13,    21,    -1,    16,    -1,    -1,    -1,    -1,
+      11,    12,    13,    -1,    -1,    16,    -1,    -1,    -1,    -1,
       21
 };
 
@@ -1335,385 +1331,385 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* Program: ExtDefList  */
-#line 41 "syntax.y"
-                    {(yyval.node)=addNode((yyloc).first_line,"Program",NOT_A_TOKEN,1,(yyvsp[0].node));root=(yyval.node);}
-#line 1341 "syntax.tab.c"
+#line 37 "syntax.y"
+                    {(yyval.node)=InsertNode((yyloc).first_line,"Program",TOKEN_ILLEGAL,1,(yyvsp[0].node));root=(yyval.node);}
+#line 1337 "syntax.tab.c"
     break;
 
   case 3: /* ExtDefList: ExtDef ExtDefList  */
-#line 43 "syntax.y"
-                                      {(yyval.node) = addNode((yyloc).first_line,"ExtDefList",NOT_A_TOKEN,2,(yyvsp[-1].node),(yyvsp[0].node));}
-#line 1347 "syntax.tab.c"
+#line 39 "syntax.y"
+                                      {(yyval.node) = InsertNode((yyloc).first_line,"ExtDefList",TOKEN_ILLEGAL,2,(yyvsp[-1].node),(yyvsp[0].node));}
+#line 1343 "syntax.tab.c"
     break;
 
   case 4: /* ExtDefList: %empty  */
-#line 44 "syntax.y"
+#line 40 "syntax.y"
                                                                {(yyval.node)=NULL;}
-#line 1353 "syntax.tab.c"
+#line 1349 "syntax.tab.c"
     break;
 
   case 5: /* ExtDef: Specifier ExtDecList SEMI  */
-#line 46 "syntax.y"
-                                                            {(yyval.node) = addNode((yyloc).first_line,"ExtDef",NOT_A_TOKEN,3,(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node));}
-#line 1359 "syntax.tab.c"
+#line 42 "syntax.y"
+                                                            {(yyval.node) = InsertNode((yyloc).first_line,"ExtDef",TOKEN_ILLEGAL,3,(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node));}
+#line 1355 "syntax.tab.c"
     break;
 
   case 6: /* ExtDef: Specifier SEMI  */
-#line 47 "syntax.y"
-                                                            {(yyval.node) = addNode((yyloc).first_line,"ExtDef",NOT_A_TOKEN,2,(yyvsp[-1].node),(yyvsp[0].node));}
-#line 1365 "syntax.tab.c"
+#line 43 "syntax.y"
+                                                            {(yyval.node) = InsertNode((yyloc).first_line,"ExtDef",TOKEN_ILLEGAL,2,(yyvsp[-1].node),(yyvsp[0].node));}
+#line 1361 "syntax.tab.c"
     break;
 
   case 7: /* ExtDef: Specifier FunDec CompSt  */
-#line 48 "syntax.y"
-                                                            {(yyval.node) = addNode((yyloc).first_line,"ExtDef",NOT_A_TOKEN,3,(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node));}
-#line 1371 "syntax.tab.c"
+#line 44 "syntax.y"
+                                                            {(yyval.node) = InsertNode((yyloc).first_line,"ExtDef",TOKEN_ILLEGAL,3,(yyvsp[-2].node),(yyvsp[-1].node),(yyvsp[0].node));}
+#line 1367 "syntax.tab.c"
     break;
 
   case 8: /* ExtDef: error SEMI  */
-#line 49 "syntax.y"
+#line 45 "syntax.y"
                                                             {synError=1;}
-#line 1377 "syntax.tab.c"
+#line 1373 "syntax.tab.c"
     break;
 
   case 9: /* ExtDecList: VarDec  */
-#line 51 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line, "ExtDecList", NOT_A_TOKEN, 1, (yyvsp[0].node)); }
-#line 1383 "syntax.tab.c"
+#line 47 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line, "ExtDecList", TOKEN_ILLEGAL, 1, (yyvsp[0].node)); }
+#line 1379 "syntax.tab.c"
     break;
 
   case 10: /* ExtDecList: VarDec COMMA ExtDecList  */
-#line 52 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line, "ExtDecList", NOT_A_TOKEN, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1389 "syntax.tab.c"
+#line 48 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line, "ExtDecList", TOKEN_ILLEGAL, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1385 "syntax.tab.c"
     break;
 
   case 11: /* Specifier: TYPE  */
-#line 56 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line, "Specifier", NOT_A_TOKEN, 1, (yyvsp[0].node)); }
-#line 1395 "syntax.tab.c"
+#line 52 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line, "Specifier", TOKEN_ILLEGAL, 1, (yyvsp[0].node)); }
+#line 1391 "syntax.tab.c"
     break;
 
   case 12: /* Specifier: StructSpecifier  */
-#line 57 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line, "Specifier",  NOT_A_TOKEN,1, (yyvsp[0].node)); }
-#line 1401 "syntax.tab.c"
+#line 53 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line, "Specifier",  TOKEN_ILLEGAL,1, (yyvsp[0].node)); }
+#line 1397 "syntax.tab.c"
     break;
 
   case 13: /* StructSpecifier: STRUCT OptTag LC DefList RC  */
-#line 59 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,"StructSpecifier", NOT_A_TOKEN, 5, (yyvsp[-4].node), (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1407 "syntax.tab.c"
+#line 55 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,"StructSpecifier", TOKEN_ILLEGAL, 5, (yyvsp[-4].node), (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1403 "syntax.tab.c"
     break;
 
   case 14: /* StructSpecifier: STRUCT Tag  */
-#line 60 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,"StructSpecifier",  NOT_A_TOKEN,2, (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1413 "syntax.tab.c"
+#line 56 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,"StructSpecifier",  TOKEN_ILLEGAL,2, (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1409 "syntax.tab.c"
     break;
 
   case 15: /* OptTag: ID  */
-#line 62 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,"OptTag", NOT_A_TOKEN, 1, (yyvsp[0].node)); }
-#line 1419 "syntax.tab.c"
+#line 58 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,"OptTag", TOKEN_ILLEGAL, 1, (yyvsp[0].node)); }
+#line 1415 "syntax.tab.c"
     break;
 
   case 16: /* OptTag: %empty  */
-#line 63 "syntax.y"
+#line 59 "syntax.y"
                                                             { (yyval.node) = NULL; }
-#line 1425 "syntax.tab.c"
+#line 1421 "syntax.tab.c"
     break;
 
   case 17: /* Tag: ID  */
-#line 65 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line, "Tag",  NOT_A_TOKEN,1, (yyvsp[0].node)); }
-#line 1431 "syntax.tab.c"
+#line 61 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line, "Tag",  TOKEN_ILLEGAL,1, (yyvsp[0].node)); }
+#line 1427 "syntax.tab.c"
     break;
 
   case 18: /* VarDec: ID  */
-#line 69 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line, "VarDec",  NOT_A_TOKEN,1, (yyvsp[0].node)); }
-#line 1437 "syntax.tab.c"
+#line 65 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line, "VarDec",  TOKEN_ILLEGAL,1, (yyvsp[0].node)); }
+#line 1433 "syntax.tab.c"
     break;
 
   case 19: /* VarDec: VarDec LB INT RB  */
-#line 70 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "VarDec", NOT_A_TOKEN,4, (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1443 "syntax.tab.c"
+#line 66 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "VarDec", TOKEN_ILLEGAL,4, (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1439 "syntax.tab.c"
     break;
 
   case 20: /* VarDec: error RB  */
-#line 71 "syntax.y"
+#line 67 "syntax.y"
                                                             {synError=1;}
-#line 1449 "syntax.tab.c"
+#line 1445 "syntax.tab.c"
     break;
 
   case 21: /* FunDec: ID LP VarList RP  */
-#line 73 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line, "FunDec", NOT_A_TOKEN, 4, (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1455 "syntax.tab.c"
+#line 69 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line, "FunDec", TOKEN_ILLEGAL, 4, (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1451 "syntax.tab.c"
     break;
 
   case 22: /* FunDec: ID LP RP  */
-#line 74 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "FunDec", NOT_A_TOKEN,3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1461 "syntax.tab.c"
+#line 70 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "FunDec", TOKEN_ILLEGAL,3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1457 "syntax.tab.c"
     break;
 
   case 23: /* FunDec: error RP  */
-#line 75 "syntax.y"
+#line 71 "syntax.y"
                                                             {synError=1;}
-#line 1467 "syntax.tab.c"
+#line 1463 "syntax.tab.c"
     break;
 
   case 24: /* VarList: ParamDec COMMA VarList  */
-#line 77 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "VarList", NOT_A_TOKEN, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1473 "syntax.tab.c"
+#line 73 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "VarList", TOKEN_ILLEGAL, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1469 "syntax.tab.c"
     break;
 
   case 25: /* VarList: ParamDec  */
-#line 78 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line, "VarList", NOT_A_TOKEN, 1, (yyvsp[0].node)); }
-#line 1479 "syntax.tab.c"
+#line 74 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line, "VarList", TOKEN_ILLEGAL, 1, (yyvsp[0].node)); }
+#line 1475 "syntax.tab.c"
     break;
 
   case 26: /* ParamDec: Specifier VarDec  */
-#line 80 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "ParamDec", NOT_A_TOKEN, 2, (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1485 "syntax.tab.c"
+#line 76 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "ParamDec", TOKEN_ILLEGAL, 2, (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1481 "syntax.tab.c"
     break;
 
   case 27: /* CompSt: LC DefList StmtList RC  */
-#line 83 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line, "CompSt", NOT_A_TOKEN, 4, (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1491 "syntax.tab.c"
+#line 79 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line, "CompSt", TOKEN_ILLEGAL, 4, (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1487 "syntax.tab.c"
     break;
 
   case 28: /* CompSt: error RC  */
-#line 84 "syntax.y"
+#line 80 "syntax.y"
                                                             {synError=1;}
-#line 1497 "syntax.tab.c"
+#line 1493 "syntax.tab.c"
     break;
 
   case 29: /* StmtList: Stmt StmtList  */
-#line 86 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line, "StmtList", NOT_A_TOKEN, 2, (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1503 "syntax.tab.c"
+#line 82 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line, "StmtList", TOKEN_ILLEGAL, 2, (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1499 "syntax.tab.c"
     break;
 
   case 30: /* StmtList: %empty  */
-#line 87 "syntax.y"
+#line 83 "syntax.y"
                                                             { (yyval.node) = NULL; }
-#line 1509 "syntax.tab.c"
+#line 1505 "syntax.tab.c"
     break;
 
   case 31: /* Stmt: Exp SEMI  */
-#line 89 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,"Stmt", NOT_A_TOKEN, 2, (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1515 "syntax.tab.c"
+#line 85 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,"Stmt", TOKEN_ILLEGAL, 2, (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1511 "syntax.tab.c"
     break;
 
   case 32: /* Stmt: CompSt  */
-#line 90 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,"Stmt", NOT_A_TOKEN, 1, (yyvsp[0].node)); }
-#line 1521 "syntax.tab.c"
+#line 86 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,"Stmt", TOKEN_ILLEGAL, 1, (yyvsp[0].node)); }
+#line 1517 "syntax.tab.c"
     break;
 
   case 33: /* Stmt: RETURN Exp SEMI  */
-#line 91 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,"Stmt", NOT_A_TOKEN, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1527 "syntax.tab.c"
+#line 87 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,"Stmt", TOKEN_ILLEGAL, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1523 "syntax.tab.c"
     break;
 
   case 34: /* Stmt: IF LP Exp RP Stmt  */
-#line 92 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line, "Stmt", NOT_A_TOKEN, 5, (yyvsp[-4].node), (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1533 "syntax.tab.c"
+#line 88 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line, "Stmt", TOKEN_ILLEGAL, 5, (yyvsp[-4].node), (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1529 "syntax.tab.c"
     break;
 
   case 35: /* Stmt: IF LP Exp RP Stmt ELSE Stmt  */
-#line 93 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,"Stmt", NOT_A_TOKEN, 7, (yyvsp[-6].node), (yyvsp[-5].node), (yyvsp[-4].node), (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1539 "syntax.tab.c"
+#line 89 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,"Stmt", TOKEN_ILLEGAL, 7, (yyvsp[-6].node), (yyvsp[-5].node), (yyvsp[-4].node), (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1535 "syntax.tab.c"
     break;
 
   case 36: /* Stmt: WHILE LP Exp RP Stmt  */
-#line 94 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,"Stmt",  NOT_A_TOKEN,5, (yyvsp[-4].node), (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1545 "syntax.tab.c"
+#line 90 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,"Stmt",  TOKEN_ILLEGAL,5, (yyvsp[-4].node), (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1541 "syntax.tab.c"
     break;
 
   case 37: /* Stmt: error SEMI  */
-#line 95 "syntax.y"
+#line 91 "syntax.y"
                                                             {synError=1;}
-#line 1551 "syntax.tab.c"
+#line 1547 "syntax.tab.c"
     break;
 
   case 38: /* DefList: Def DefList  */
-#line 98 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "DefList", NOT_A_TOKEN, 2, (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1557 "syntax.tab.c"
+#line 94 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "DefList", TOKEN_ILLEGAL, 2, (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1553 "syntax.tab.c"
     break;
 
   case 39: /* DefList: %empty  */
-#line 99 "syntax.y"
+#line 95 "syntax.y"
                                                             { (yyval.node) = NULL; }
-#line 1563 "syntax.tab.c"
+#line 1559 "syntax.tab.c"
     break;
 
   case 40: /* Def: Specifier DecList SEMI  */
-#line 101 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "Def", NOT_A_TOKEN, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1569 "syntax.tab.c"
+#line 97 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "Def", TOKEN_ILLEGAL, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1565 "syntax.tab.c"
     break;
 
   case 41: /* DecList: Dec  */
-#line 103 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "DecList", NOT_A_TOKEN, 1, (yyvsp[0].node)); }
-#line 1575 "syntax.tab.c"
+#line 99 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "DecList", TOKEN_ILLEGAL, 1, (yyvsp[0].node)); }
+#line 1571 "syntax.tab.c"
     break;
 
   case 42: /* DecList: Dec COMMA DecList  */
-#line 104 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "DecList", NOT_A_TOKEN, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1581 "syntax.tab.c"
+#line 100 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "DecList", TOKEN_ILLEGAL, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1577 "syntax.tab.c"
     break;
 
   case 43: /* Dec: VarDec  */
-#line 106 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "Dec", NOT_A_TOKEN, 1, (yyvsp[0].node)); }
-#line 1587 "syntax.tab.c"
+#line 102 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "Dec", TOKEN_ILLEGAL, 1, (yyvsp[0].node)); }
+#line 1583 "syntax.tab.c"
     break;
 
   case 44: /* Dec: VarDec ASSIGNOP Exp  */
-#line 107 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "Dec", NOT_A_TOKEN, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1593 "syntax.tab.c"
+#line 103 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "Dec", TOKEN_ILLEGAL, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1589 "syntax.tab.c"
     break;
 
   case 45: /* Exp: Exp ASSIGNOP Exp  */
-#line 110 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "Exp", NOT_A_TOKEN, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1599 "syntax.tab.c"
+#line 106 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "Exp", TOKEN_ILLEGAL, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1595 "syntax.tab.c"
     break;
 
   case 46: /* Exp: Exp AND Exp  */
-#line 111 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "Exp", NOT_A_TOKEN, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1605 "syntax.tab.c"
+#line 107 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "Exp", TOKEN_ILLEGAL, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1601 "syntax.tab.c"
     break;
 
   case 47: /* Exp: Exp OR Exp  */
-#line 112 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "Exp", NOT_A_TOKEN, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1611 "syntax.tab.c"
+#line 108 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "Exp", TOKEN_ILLEGAL, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1607 "syntax.tab.c"
     break;
 
   case 48: /* Exp: Exp RELOP Exp  */
-#line 113 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "Exp", NOT_A_TOKEN, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1617 "syntax.tab.c"
+#line 109 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "Exp", TOKEN_ILLEGAL, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1613 "syntax.tab.c"
     break;
 
   case 49: /* Exp: Exp PLUS Exp  */
-#line 114 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "Exp", NOT_A_TOKEN, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1623 "syntax.tab.c"
+#line 110 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "Exp", TOKEN_ILLEGAL, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1619 "syntax.tab.c"
     break;
 
   case 50: /* Exp: Exp MINUS Exp  */
-#line 115 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "Exp", NOT_A_TOKEN, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1629 "syntax.tab.c"
+#line 111 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "Exp", TOKEN_ILLEGAL, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1625 "syntax.tab.c"
     break;
 
   case 51: /* Exp: Exp STAR Exp  */
-#line 116 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "Exp", NOT_A_TOKEN, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1635 "syntax.tab.c"
+#line 112 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "Exp", TOKEN_ILLEGAL, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1631 "syntax.tab.c"
     break;
 
   case 52: /* Exp: Exp DIV Exp  */
-#line 117 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "Exp", NOT_A_TOKEN, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1641 "syntax.tab.c"
+#line 113 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "Exp", TOKEN_ILLEGAL, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1637 "syntax.tab.c"
     break;
 
   case 53: /* Exp: LP Exp RP  */
-#line 118 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "Exp", NOT_A_TOKEN, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1647 "syntax.tab.c"
+#line 114 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "Exp", TOKEN_ILLEGAL, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1643 "syntax.tab.c"
     break;
 
   case 54: /* Exp: MINUS Exp  */
-#line 119 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "Exp", NOT_A_TOKEN, 2, (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1653 "syntax.tab.c"
+#line 115 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "Exp", TOKEN_ILLEGAL, 2, (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1649 "syntax.tab.c"
     break;
 
   case 55: /* Exp: NOT Exp  */
-#line 120 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "Exp", NOT_A_TOKEN, 2, (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1659 "syntax.tab.c"
+#line 116 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "Exp", TOKEN_ILLEGAL, 2, (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1655 "syntax.tab.c"
     break;
 
   case 56: /* Exp: ID LP Args RP  */
-#line 121 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "Exp", NOT_A_TOKEN, 4, (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1665 "syntax.tab.c"
+#line 117 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "Exp", TOKEN_ILLEGAL, 4, (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1661 "syntax.tab.c"
     break;
 
   case 57: /* Exp: ID LP RP  */
-#line 122 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "Exp", NOT_A_TOKEN, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1671 "syntax.tab.c"
+#line 118 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "Exp", TOKEN_ILLEGAL, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1667 "syntax.tab.c"
     break;
 
   case 58: /* Exp: Exp LB Exp RB  */
-#line 123 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "Exp", NOT_A_TOKEN, 4, (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1677 "syntax.tab.c"
+#line 119 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "Exp", TOKEN_ILLEGAL, 4, (yyvsp[-3].node), (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1673 "syntax.tab.c"
     break;
 
   case 59: /* Exp: Exp DOT ID  */
-#line 124 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "Exp", NOT_A_TOKEN, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1683 "syntax.tab.c"
+#line 120 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "Exp", TOKEN_ILLEGAL, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1679 "syntax.tab.c"
     break;
 
   case 60: /* Exp: ID  */
-#line 125 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "Exp", NOT_A_TOKEN, 1, (yyvsp[0].node)); }
-#line 1689 "syntax.tab.c"
+#line 121 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "Exp", TOKEN_ILLEGAL, 1, (yyvsp[0].node)); }
+#line 1685 "syntax.tab.c"
     break;
 
   case 61: /* Exp: INT  */
-#line 126 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "Exp", NOT_A_TOKEN, 1, (yyvsp[0].node)); }
-#line 1695 "syntax.tab.c"
+#line 122 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "Exp", TOKEN_ILLEGAL, 1, (yyvsp[0].node)); }
+#line 1691 "syntax.tab.c"
     break;
 
   case 62: /* Exp: FLOAT  */
-#line 127 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "Exp", NOT_A_TOKEN, 1, (yyvsp[0].node)); }
-#line 1701 "syntax.tab.c"
+#line 123 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "Exp", TOKEN_ILLEGAL, 1, (yyvsp[0].node)); }
+#line 1697 "syntax.tab.c"
     break;
 
   case 63: /* Args: Exp COMMA Args  */
-#line 129 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "Args", NOT_A_TOKEN, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
-#line 1707 "syntax.tab.c"
+#line 125 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "Args", TOKEN_ILLEGAL, 3, (yyvsp[-2].node), (yyvsp[-1].node), (yyvsp[0].node)); }
+#line 1703 "syntax.tab.c"
     break;
 
   case 64: /* Args: Exp  */
-#line 130 "syntax.y"
-                                                            { (yyval.node) = addNode((yyloc).first_line,  "Args", NOT_A_TOKEN, 1, (yyvsp[0].node)); }
-#line 1713 "syntax.tab.c"
+#line 126 "syntax.y"
+                                                            { (yyval.node) = InsertNode((yyloc).first_line,  "Args", TOKEN_ILLEGAL, 1, (yyvsp[0].node)); }
+#line 1709 "syntax.tab.c"
     break;
 
 
-#line 1717 "syntax.tab.c"
+#line 1713 "syntax.tab.c"
 
       default: break;
     }
@@ -1911,8 +1907,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 132 "syntax.y"
-
+#line 128 "syntax.y"
 
 void yyerror(const char *msg){
     fprintf(stderr, "Error type B at line %d: %s.\n", yylineno, msg);

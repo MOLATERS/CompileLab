@@ -537,31 +537,23 @@ int yy_flex_debug = 0;
 char *yytext;
 #line 1 "lexical.l"
 #line 2 "lexical.l"
-# include <stdio.h>
-# include <stdlib.h>
-# include"tree.h"
-# include "syntax.tab.h"
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include "parser.h"
+    #include "syntax.tab.h"
 
-extern int lexError;
-int lines = 0;
-int yycolumn = 1;
+    extern int lexError;
+    int lines = 0; // 当前的行号
+    int yycolumn = 1; // 当前的列号
 
-#define YY_USER_ACTION \
-    yylloc.first_line=yylloc.last_line=yylineno; \
-    yylloc.first_column=yycolumn; \
-    yylloc.last_column=yycolumn+yyleng-1; \
-    yycolumn+=yyleng;
-#line 555 "lex.yy.c"
-/*浮点型*/
-/*数字*/
-/*标识符*/
-/*标点*/
-#line 49 "lexical.l"
- /*关键字*/
- /*注释*/
- /*空格*/
- /*错误*/
-#line 565 "lex.yy.c"
+    #define YY_USER_ACTION \
+        yylloc.first_line = yylloc.last_line = yylineno;\
+        yylloc.first_column = yycolumn;\
+        yylloc.last_column = yycolumn + yyleng - 1;\
+        yycolumn += yyleng;
+
+#line 556 "lex.yy.c"
+#line 557 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -778,9 +770,9 @@ YY_DECL
 		}
 
 	{
-#line 70 "lexical.l"
+#line 60 "lexical.l"
 
-#line 784 "lex.yy.c"
+#line 776 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -850,18 +842,17 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
-#line 71 "lexical.l"
+#line 61 "lexical.l"
 {}
 	YY_BREAK
-/* {COMMENT} {yylval.type_node = addLeaf("COMMENT", 0, yylineno, NULL); return COMMENT;} */
 case 2:
 YY_RULE_SETUP
-#line 73 "lexical.l"
+#line 62 "lexical.l"
 { char c = input(); while (c != '\n') c = input(); }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 74 "lexical.l"
+#line 63 "lexical.l"
 {
     int q = 0;
     char c;
@@ -886,142 +877,142 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 97 "lexical.l"
-{ yylval.node = addLeaf(yylineno, "ELSE", TOKEN_OTHER, yytext); return ELSE; }
+#line 85 "lexical.l"
+{ yylval.node = InsertLeaf(yylineno, "ELSE", TOKEN_OTHER, yytext); return ELSE; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 98 "lexical.l"
-{ yylval.node = addLeaf(yylineno, "WHILE", TOKEN_OTHER, yytext); return WHILE; }
+#line 86 "lexical.l"
+{ yylval.node = InsertLeaf(yylineno, "WHILE", TOKEN_OTHER, yytext); return WHILE; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 99 "lexical.l"
-{ yylval.node = addLeaf(yylineno, "TYPE", TOKEN_TYPE, yytext); return TYPE; }
+#line 87 "lexical.l"
+{ yylval.node = InsertLeaf(yylineno, "TYPE", TOKEN_TYPE, yytext); return TYPE; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 100 "lexical.l"
-{ yylval.node = addLeaf(yylineno, "STRUCT", TOKEN_OTHER, yytext); return STRUCT; }
+#line 88 "lexical.l"
+{ yylval.node = InsertLeaf(yylineno, "STRUCT", TOKEN_OTHER, yytext); return STRUCT; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 101 "lexical.l"
-{ yylval.node = addLeaf(yylineno, "RETURN", TOKEN_OTHER, yytext); return RETURN; }
+#line 89 "lexical.l"
+{ yylval.node = InsertLeaf(yylineno, "RETURN", TOKEN_OTHER, yytext); return RETURN; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 102 "lexical.l"
-{ yylval.node = addLeaf(yylineno, "RELOP", TOKEN_OTHER, yytext); return RELOP; }
+#line 90 "lexical.l"
+{ yylval.node = InsertLeaf(yylineno, "RELOP", TOKEN_OTHER, yytext); return RELOP; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 103 "lexical.l"
-{ yylval.node = addLeaf(yylineno, "IF", TOKEN_OTHER, yytext); return IF; }
+#line 91 "lexical.l"
+{ yylval.node = InsertLeaf(yylineno, "IF", TOKEN_OTHER, yytext); return IF; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 104 "lexical.l"
-{ yylval.node = addLeaf(yylineno, "PLUS", TOKEN_OTHER, yytext); return PLUS; }
+#line 92 "lexical.l"
+{ yylval.node = InsertLeaf(yylineno, "PLUS", TOKEN_OTHER, yytext); return PLUS; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 105 "lexical.l"
-{ yylval.node = addLeaf(yylineno, "MINUS", TOKEN_OTHER, yytext); return MINUS; }
+#line 93 "lexical.l"
+{ yylval.node = InsertLeaf(yylineno, "MINUS", TOKEN_OTHER, yytext); return MINUS; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 106 "lexical.l"
-{ yylval.node = addLeaf(yylineno, "STAR", TOKEN_OTHER, yytext); return STAR; }
+#line 94 "lexical.l"
+{ yylval.node = InsertLeaf(yylineno, "STAR", TOKEN_OTHER, yytext); return STAR; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 107 "lexical.l"
-{ yylval.node = addLeaf(yylineno, "DIV", TOKEN_OTHER, yytext); return DIV; }
+#line 95 "lexical.l"
+{ yylval.node = InsertLeaf(yylineno, "DIV", TOKEN_OTHER, yytext); return DIV; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 108 "lexical.l"
-{ yylval.node = addLeaf(yylineno, "AND", TOKEN_OTHER, yytext); return AND; }
+#line 96 "lexical.l"
+{ yylval.node = InsertLeaf(yylineno, "AND", TOKEN_OTHER, yytext); return AND; }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 109 "lexical.l"
-{ yylval.node = addLeaf(yylineno, "OR", TOKEN_OTHER, yytext); return OR; }
+#line 97 "lexical.l"
+{ yylval.node = InsertLeaf(yylineno, "OR", TOKEN_OTHER, yytext); return OR; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 110 "lexical.l"
-{ yylval.node = addLeaf(yylineno, "NOT", TOKEN_OTHER, yytext); return NOT; }
+#line 98 "lexical.l"
+{ yylval.node = InsertLeaf(yylineno, "NOT", TOKEN_OTHER, yytext); return NOT; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 112 "lexical.l"
-{ yylval.node = addLeaf(yylineno, "DOT", TOKEN_OTHER, yytext); return DOT; }
+#line 100 "lexical.l"
+{ yylval.node = InsertLeaf(yylineno, "DOT", TOKEN_OTHER, yytext); return DOT; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 113 "lexical.l"
-{ yylval.node = addLeaf(yylineno, "SEMI", TOKEN_OTHER, yytext); return SEMI; }
+#line 101 "lexical.l"
+{ yylval.node = InsertLeaf(yylineno, "SEMI", TOKEN_OTHER, yytext); return SEMI; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 114 "lexical.l"
-{ yylval.node = addLeaf(yylineno, "COMMA", TOKEN_OTHER, yytext); return COMMA; }
+#line 102 "lexical.l"
+{ yylval.node = InsertLeaf(yylineno, "COMMA", TOKEN_OTHER, yytext); return COMMA; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 115 "lexical.l"
-{ yylval.node = addLeaf(yylineno, "ASSIGNOP", TOKEN_OTHER, yytext); return ASSIGNOP; }
+#line 103 "lexical.l"
+{ yylval.node = InsertLeaf(yylineno, "ASSIGNOP", TOKEN_OTHER, yytext); return ASSIGNOP; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 117 "lexical.l"
-{ yylval.node = addLeaf(yylineno, "LP", TOKEN_OTHER, yytext); return LP; }
+#line 105 "lexical.l"
+{ yylval.node = InsertLeaf(yylineno, "LP", TOKEN_OTHER, yytext); return LP; }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 118 "lexical.l"
-{ yylval.node = addLeaf(yylineno, "RP", TOKEN_OTHER, yytext); return RP; }
+#line 106 "lexical.l"
+{ yylval.node = InsertLeaf(yylineno, "RP", TOKEN_OTHER, yytext); return RP; }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 119 "lexical.l"
-{ yylval.node = addLeaf(yylineno, "LB", TOKEN_OTHER, yytext); return LB; }
+#line 107 "lexical.l"
+{ yylval.node = InsertLeaf(yylineno, "LB", TOKEN_OTHER, yytext); return LB; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 120 "lexical.l"
-{ yylval.node = addLeaf(yylineno, "RB", TOKEN_OTHER, yytext); return RB; }
+#line 108 "lexical.l"
+{ yylval.node = InsertLeaf(yylineno, "RB", TOKEN_OTHER, yytext); return RB; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 121 "lexical.l"
-{ yylval.node = addLeaf(yylineno, "LC", TOKEN_OTHER, yytext); return LC; }
+#line 109 "lexical.l"
+{ yylval.node = InsertLeaf(yylineno, "LC", TOKEN_OTHER, yytext); return LC; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 122 "lexical.l"
-{ yylval.node = addLeaf(yylineno, "RC", TOKEN_OTHER, yytext); return RC; }
+#line 110 "lexical.l"
+{ yylval.node = InsertLeaf(yylineno, "RC", TOKEN_OTHER, yytext); return RC; }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 124 "lexical.l"
-{ yylval.node = addLeaf(yylineno, "ID", TOKEN_ID, yytext); return ID;}
+#line 112 "lexical.l"
+{ yylval.node = InsertLeaf(yylineno, "ID", TOKEN_ID, yytext); return ID;}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 125 "lexical.l"
-{ yylval.node = addLeaf(yylineno, "INT", TOKEN_INT, yytext); return INT;}
+#line 113 "lexical.l"
+{ yylval.node = InsertLeaf(yylineno, "INT", TOKEN_INT, yytext); return INT;}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 126 "lexical.l"
-{ yylval.node = addLeaf(yylineno, "FLOAT", TOKEN_FLOAT, yytext); return FLOAT;}
+#line 114 "lexical.l"
+{ yylval.node = InsertLeaf(yylineno, "FLOAT", TOKEN_FLOAT, yytext); return FLOAT;}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 128 "lexical.l"
+#line 116 "lexical.l"
 { 
     lexError = 1;
     printf("error type A at line %d: mysterious character '%s'\n", yylineno, yytext);
@@ -1029,10 +1020,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 132 "lexical.l"
+#line 120 "lexical.l"
 ECHO;
 	YY_BREAK
-#line 1036 "lex.yy.c"
+#line 1027 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2049,5 +2040,5 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 132 "lexical.l"
+#line 120 "lexical.l"
 

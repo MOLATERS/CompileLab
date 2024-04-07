@@ -39,7 +39,7 @@
 # define YY_YY_SYNTAX_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 0
+# define YYDEBUG 1
 #endif
 #if YYDEBUG
 extern int yydebug;
@@ -91,8 +91,8 @@ extern int yydebug;
 union YYSTYPE
 {
 #line 11 "syntax.y"
-
-    treeNode node;
+ // 将所有可能的类型都包含进去
+    struct TNode* node;
 
 #line 98 "syntax.tab.h"
 
