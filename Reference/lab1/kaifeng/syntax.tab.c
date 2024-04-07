@@ -67,7 +67,7 @@
 
 
 /* First part of user prologue.  */
-#line 2 "syntax.y"
+#line 1 "syntax.y"
 
 # include "lex.yy.c"
 # include <unistd.h>
