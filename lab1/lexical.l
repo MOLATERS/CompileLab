@@ -11,9 +11,9 @@
         yylloc.first_column = yycolumn;\
         yylloc.last_column = yycolumn + yyleng - 1;\
         yycolumn += yyleng;
+
 %}
 %option yylineno
-
 INT8 [+-]?0[1-7][0-7]*
 INT10 [+-]?(0|[1-9][0-9]*)
 INT16 [+-]?0[Xx][0-9a-fA-F]+
@@ -28,7 +28,7 @@ PLUS \+
 MINUS \-
 STAR \*
 DIV \/
-AND &&
+ND &&
 OR \|\|
 DOT \.
 NOT \!
@@ -55,4 +55,4 @@ INT16_ERROR 0[Xx][a-fA-F0-9]*[g-zG-Z]+[a-fA-F0-9]*
 FLOAT_ERROR [0]+(0|[1-9][0-9]*)\.[0-9]+|\.[0-9]+|[0-9]+\.|[0-9]+[Ee][+-]?[0-9]*|([+-]?([0-9]*\.[0-9]+|[0-9]+\.[0-9]*)[Ee][+-]?[0-9]+\.[0-9]+)
 NUM_ERROR {INT8_ERROR}|{INT16_ERROR}|{FLOAT_ERROR}
 ID_ERROR [0-9]+[a-zA-Z_]+
-
+%%
