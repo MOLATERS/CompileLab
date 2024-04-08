@@ -50,7 +50,7 @@ TYPE int|float
 LINE_COMMENT ("//"[.]*)
 BLOCK_COMMENT "/\*"[.]*"\*/"
 COMMENT {LINE_COMMENT}|{BLOCK_COMMENT}
-SPACE [\n\r\t]+
+SPACE [\n\r\t ]+
 AERROR .
 INT8_ERROR 0[0-7]*[8-9]+[0-7]*
 INT16_ERROR 0[Xx][a-fA-F0-9]*[g-zG-Z]+[a-fA-F0-9]*
@@ -115,6 +115,7 @@ ID_ERROR [0-9]+[a-zA-Z_]+
 
 {AERROR} { 
     lexError = 1;
+    if(strcmp(yytext," ")) printf("is empty");
     printf("error type A at line %d: mysterious character '%s'\n", yylineno, yytext);
 }
 %%

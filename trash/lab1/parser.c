@@ -5,6 +5,7 @@ int synError = 0;
 int lexError = 0;
 extern TNode* root;
 extern int yylineno;
+extern int yydebug;
 extern int yyparse();
 extern void yyrestart(FILE*);
 
@@ -40,7 +41,7 @@ struct TNode* InsertNode(int lineno, char* name, enum NODE_TYPE type, int argc, 
     struct TNode* newNode = (struct TNode*)malloc(sizeof(struct TNode));
     if(newNode == NULL) return NULL;
     newNode->lineno = lineno;
-    newNode->name = name;
+    newNode->name = strdup(name);
     newNode->type = type;
     newNode->child = NULL;
     newNode->brother = NULL;
@@ -50,11 +51,12 @@ struct TNode* InsertNode(int lineno, char* name, enum NODE_TYPE type, int argc, 
         struct TNode* child = va_arg(args, struct TNode*);
         newNode->child = child;
         struct TNode* current = child;
-        for(int i =0; i< argc;i++){
+        for(int i =1; i< argc; i++){
             struct TNode* brother = va_arg(args, struct TNode*);
             if(current != NULL){
                 current->brother = brother;
             }
+            current = brother;
         }
         va_end(args);
         return newNode;
@@ -65,7 +67,8 @@ struct TNode* InsertLeaf(int lineno, char* name, enum NODE_TYPE type, char* valu
     struct TNode* leaf = (struct TNode*)malloc(sizeof(struct TNode));
     if(leaf == NULL)return NULL;
     leaf->lineno = lineno;
-    leaf->name = name;
+    leaf->name = strdup(name);
+    if(leaf->name == NULL) return NULL;
     leaf->type = type;
     leaf->child = NULL;
     leaf->brother = NULL;
@@ -83,14 +86,11 @@ struct TNode* InsertLeaf(int lineno, char* name, enum NODE_TYPE type, char* valu
         default:
             break;
     }
-    if(leaf->name != NULL){
-        return NULL;
-    }
     return leaf;
 }
 
 void PreOrder(struct TNode* node, int layer){
-    if(node == NULL)return;
+    if(node == NULL) return;
     for(int i =0; i<layer;i++)printf(" ");
     printf("%s",node->name);
     switch(node->type){
@@ -111,18 +111,18 @@ void PreOrder(struct TNode* node, int layer){
             break;
     }
     printf("\n");
-    PreOrder(node->brother,layer++);
-    PreOrder(node->child,layer);
+    PreOrder(node->child,layer+1);
+    PreOrder(node->brother,layer);
+    return;
 }
 
 void ReleaseNode(struct TNode* node){
     if(node == NULL) return;
-    if(node->name != NULL) free(node->name);
-    if(node->value_string != NULL) free(node->value_string);
     ReleaseNode(node->child);
     ReleaseNode(node->brother);
-    ReleaseNode(node);
-    return;
+    if(node->value_string != NULL) free(node->value_string);
+    free(node->name);
+    free(node);
 }
 
 int main(int argc, char** argv) {
@@ -130,13 +130,12 @@ int main(int argc, char** argv) {
         yyparse();
         return 1;
     }
-
     FILE* f = fopen(argv[1], "r");
     if (!f) {
         perror(argv[1]);
         return 1;
     }
-
+    // yydebug = 1;
     yyrestart(f);
     yyparse();
     if (!lexError && !synError) {

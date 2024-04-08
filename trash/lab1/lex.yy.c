@@ -397,7 +397,7 @@ static const YY_CHAR yy_ec[256] =
         1,    1,    1,    1,    1,    1,    1,    1,    2,    3,
         1,    1,    2,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    4,    1,    1,    1,    1,    5,    1,    6,
+        1,    2,    4,    1,    1,    1,    1,    5,    1,    6,
         7,    8,    9,   10,   11,   12,   13,   14,   15,   15,
        15,   15,   15,   15,   15,   16,   16,    1,   17,   18,
        19,   20,    1,    1,   21,   21,   21,   21,   22,   21,
@@ -1015,15 +1015,16 @@ YY_RULE_SETUP
 #line 116 "lexical.l"
 { 
     lexError = 1;
+    if(strcmp(yytext," ")) printf("is empty");
     printf("error type A at line %d: mysterious character '%s'\n", yylineno, yytext);
 }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 120 "lexical.l"
+#line 121 "lexical.l"
 ECHO;
 	YY_BREAK
-#line 1027 "lex.yy.c"
+#line 1028 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2040,5 +2041,5 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 120 "lexical.l"
+#line 121 "lexical.l"
 

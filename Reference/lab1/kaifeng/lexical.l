@@ -57,7 +57,7 @@ LINE_COMMENT ("//"[.]*)
 BLOCK_COMMENT "/\*"[.]*"\*/"
 COMMENT {LINE_COMMENT}|{BLOCK_COMMENT}
  /*空格*/
-SPACE [\n\r\t]+
+SPACE [\n\r\t ]+
  /*错误*/
 AERROR .
 INT8_ERROR 0[0-7]*[8-9]+[0-7]*
