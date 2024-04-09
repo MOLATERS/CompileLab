@@ -1,20 +1,24 @@
 #!/bin/bash
-
-echo -e "Program clean"
-make clean
 echo "Program generating"
+cd src
 make parser
-
-filepath="./text"
-filetype=".cmm"
-filename="optest"
-
-cat textfiles | while read line
+cd ..
+ls text | while read line
 do 
-echo "=======================$line=======================" 
-./parser "$filepath/$line" 
+if [ ! -d "./output/" ];
+    then mkdir output
+fi
+cd output
+if [ -d "log" ];then
+    rm log
+fi
+cd ..
+echo "=========================$line==========================" >> ./output/log
+./src/parser "text/$line" &>> ./output/log
 done
 
-
+cd src 
+make clean
+echo Program clean
 
 

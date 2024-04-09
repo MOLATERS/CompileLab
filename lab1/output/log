@@ -1,10 +1,26 @@
-Program clean
-rm lex.yy.c syntax.tab.* parser
-Program generating
-flex lexical.l
-bison -d -t syntax.y
-gcc syntax.tab.c parser.c -lfl -g -o parser
-=======================optest.cmm=======================
+=========================test3.cmm==========================
+/test3.cmm: No such file or directory
+=========================optest.cmm==========================
+/optest.cmm: No such file or directory
+=========================optest1.cmm==========================
+/optest1.cmm: No such file or directory
+=========================optest2.cmm==========================
+/optest2.cmm: No such file or directory
+=========================optest3.cmm==========================
+/optest3.cmm: No such file or directory
+=========================optest4.cmm==========================
+/optest4.cmm: No such file or directory
+=========================optest5.cmm==========================
+/optest5.cmm: No such file or directory
+=========================test.cmm==========================
+/test.cmm: No such file or directory
+=========================test1.cmm==========================
+/test1.cmm: No such file or directory
+=========================test2.cmm==========================
+/test2.cmm: No such file or directory
+=========================test3.cmm==========================
+/test3.cmm: No such file or directory
+=========================optest.cmm==========================
 Program (1)
  ExtDefList (1)
   ExtDef (1)
@@ -40,9 +56,10 @@ Program (1)
          Exp (4)
           INT 63
        SEMI
-=======================optest1.cmm=======================
+    RC
+=========================optest1.cmm==========================
 Error type B at line 3: syntax error.
-=======================optest2.cmm=======================
+=========================optest2.cmm==========================
 Program (1)
  ExtDefList (1)
   ExtDef (1)
@@ -66,9 +83,10 @@ Program (1)
         Exp (3)
          FLOAT 0.000105
       SEMI
-=======================optest3.cmm=======================
+    RC
+=========================optest3.cmm==========================
 Error type B at line 3: syntax error.
-=======================optest4.cmm=======================
+=========================optest4.cmm==========================
 Program (1)
  ExtDefList (1)
   ExtDef (1)
@@ -92,14 +110,38 @@ Program (1)
         Exp (7)
          INT 1
       SEMI
-=======================optest5.cmm=======================
-Error type B at line 8: syntax error.
-=======================test.cmm=======================
+    RC
+=========================optest5.cmm==========================
+Program (1)
+ ExtDefList (1)
+  ExtDef (1)
+   Specifier (1)
+    TYPE int
+   FunDec (1)
+    ID main
+    LP
+    RP
+   CompSt (2)
+    LC
+    DefList (9)
+     Def (9)
+      Specifier (9)
+       TYPE int
+      DecList (9)
+       Dec (9)
+        VarDec (9)
+         ID i
+        ASSIGNOP
+        Exp (9)
+         INT 1
+      SEMI
+    RC
+=========================test.cmm==========================
 error type A at line 4: mysterious character '~'
-=======================test1.cmm=======================
+=========================test1.cmm==========================
 Error type B at line 5: syntax error.
 Error type B at line 6: syntax error.
-=======================test2.cmm=======================
+=========================test2.cmm==========================
 Program (1)
  ExtDefList (1)
   ExtDef (1)
@@ -134,7 +176,7 @@ Program (1)
          INT 1
       SEMI
     RC
-=======================test3.cmm=======================
+=========================test3.cmm==========================
 Program (1)
  ExtDefList (1)
   ExtDef (1)

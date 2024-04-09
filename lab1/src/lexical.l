@@ -61,23 +61,34 @@ ID_ERROR [0-9]+[a-zA-Z_]+
 {SPACE} {}
 "//" { char c = input(); while (c != '\n') c = input(); }
 "/*" {
-    int q = 0;
+    int state = 0;
     char c;
-    while(1){
-        if(q == 0){
-            c = input();
-            if(c == EOF)
+    int flag = 1;
+    int front = 0;
+    while(flag){
+        switch(state){
+            case 0:
+                c = input();
+                if(c == EOF) flag = 0;
+                if(c == '*') state = 1; 
+                if(c == '/') state = 2;
                 break;
-            if(c == '*')
-                q = 1;
-        }else{
-            c = input();
-            if(c == EOF)
+            case 1:
+                c = input();
+                if(c == EOF) flag = 0;
+                if(c == '/') {
+                    if(front == 0) flag = 0;  
+                    else front--;
+                }
+                else state = 0;
                 break;
-            if(c == '/')
+            case 2:
+                c = input();
+                if(c == '*') front++;
+                state = 0;
                 break;
-            else if(c != '*')
-                q = 0;
+            default:
+                break;
         }
     }
 }
