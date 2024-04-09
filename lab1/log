@@ -1,63 +1,9 @@
-Program (1)
- ExtDefList (1)
-  ExtDef (1)
-   Specifier (1)
-    StructSpecifier (1)
-     STRUCT
-     OptTag (1)
-      ID Complex
-     LC
-     DefList (3)
-      Def (3)
-       Specifier (3)
-        TYPE float
-       DecList (3)
-        Dec (3)
-         VarDec (3)
-          ID real
-        COMMA
-        DecList (3)
-         Dec (3)
-          VarDec (3)
-           ID image
-       SEMI
-     RC
-   SEMI
-  ExtDefList (5)
-   ExtDef (5)
-    Specifier (5)
-     TYPE int
-    FunDec (5)
-     ID main
-     LP
-     RP
-    CompSt (6)
-     LC
-     DefList (7)
-      Def (7)
-       Specifier (7)
-        StructSpecifier (7)
-         STRUCT
-         Tag (7)
-          ID Complex
-       DecList (7)
-        Dec (7)
-         VarDec (7)
-          ID x
-       SEMI
-     StmtList (8)
-      Stmt (8)
-       Exp (8)
-        Exp (8)
-         Exp (8)
-          ID y
-         DOT
-         ID image
-        ASSIGNOP
-        Exp (8)
-         FLOAT 3.500000
-       SEMI
-     RC
+Program clean
+rm lex.yy.c syntax.tab.* parser
+Program generating
+flex lexical.l
+bison -d -t syntax.y
+gcc syntax.tab.c parser.c -lfl -g -o parser
 =======================optest.cmm=======================
 Program (1)
  ExtDefList (1)
@@ -95,6 +41,7 @@ Program (1)
           INT 63
        SEMI
 =======================optest1.cmm=======================
+Error type B at line 3: syntax error.
 =======================optest2.cmm=======================
 Program (1)
  ExtDefList (1)
@@ -120,6 +67,7 @@ Program (1)
          FLOAT 0.000105
       SEMI
 =======================optest3.cmm=======================
+Error type B at line 3: syntax error.
 =======================optest4.cmm=======================
 Program (1)
  ExtDefList (1)
@@ -145,9 +93,12 @@ Program (1)
          INT 1
       SEMI
 =======================optest5.cmm=======================
+Error type B at line 8: syntax error.
 =======================test.cmm=======================
-is emptyerror type A at line 4: mysterious character '~'
+error type A at line 4: mysterious character '~'
 =======================test1.cmm=======================
+Error type B at line 5: syntax error.
+Error type B at line 6: syntax error.
 =======================test2.cmm=======================
 Program (1)
  ExtDefList (1)

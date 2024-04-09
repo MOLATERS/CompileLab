@@ -11,8 +11,8 @@ filename="optest"
 
 cat textfiles | while read line
 do 
-echo "=======================$line=======================" >> log
-./parser "$filepath/$line" >> log
+echo "=======================$line=======================" 
+./parser "$filepath/$line" 
 done
 
 

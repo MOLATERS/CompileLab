@@ -115,7 +115,7 @@ ID_ERROR [0-9]+[a-zA-Z_]+
 
 {AERROR} { 
     lexError = 1;
-    if(strcmp(yytext," ")) printf("is empty");
+    // if(strcmp(yytext," ")) printf("is empty ");
     printf("error type A at line %d: mysterious character '%s'\n", yylineno, yytext);
 }
 %%

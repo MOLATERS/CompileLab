@@ -1,13 +1,15 @@
+syntax=syntax.tab.c syntax.tab.h
+path=text/optest.cmm
 all:
-	./parser ./text/optest.cmm
+	./parser ${path}
 
-parser: syntax.tab.c parser.c syntax.tab.h parser.h lex.yy.c
+parser: parser.c parser.h lex.yy.c ${syntax}
 	gcc syntax.tab.c parser.c -lfl -g -o parser
 
 lex.yy.c:lexical.l
 	flex lexical.l
 
-syntax.tab.c syntax.tab.h:syntax.y
+${syntax}:syntax.y
 	bison -d -t syntax.y
 
 clean:

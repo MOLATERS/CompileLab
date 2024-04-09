@@ -122,7 +122,6 @@ void ReleaseNode(struct TNode* node){
     ReleaseNode(node->brother);
     if(node->value_string != NULL) free(node->value_string);
     if(node->name != NULL) free(node->name);
-    free(node->name);
     free(node);
 }
 
