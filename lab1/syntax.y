@@ -1,136 +1,131 @@
 %{
-# include "lex.yy.c"
-# include <unistd.h>
-# include <stdio.h>   
-# include "tree.h"
-treeNode root;
+#include "lex.yy.c"
+#include "unistd.h"
+#include "stdio.h"
+#include "parser.h"
+
 extern int synError;
-//#define YYERROR_VERBOSE 1
+struct TNode* root;
 %}
 
-%union{
-    treeNode node;
+%union{ // 将所有可能的类型都包含进去
+    struct TNode* node;
 }
 
-/*tokens*/
-%token <node> INT FLOAT ID // 表示数据的类型
-%token <node> SEMI COMMA ASSIGNOP RELOP PLUS MINUS STAR DIV // 表示数据的运算符
-%token <node> AND OR DOT NOT TYPE LP RP LB RB LC RC // 表示逻辑运算符
-%token <node> STRUCT RETURN IF ELSE WHILE // 表示关键字
+// tokens
+%token <node> INT FLOAT ID
+%token <node> SEMI COMMA ASSIGNOP RELOP PLUS MINUS STAR DIV
+%token <node> AND OR DOT NOT TYPE LP RP LB RB LC RC
+%token <node> STRUCT RETURN IF ELSE WHILE
 
-
-/*no-terminals*/
-%type <node> Program ExtDefList ExtDef ExtDecList 
-%type <node> Specifier StructSpecifier OptTag Tag 
+// not taken
+%type <node> Program ExtDefList ExtDef ExtDecList
+%type <node> Specifier StructSpecifier OptTag Tag
 %type <node> VarDec FunDec VarList ParamDec CompSt
 %type <node> StmtList Stmt DefList Def DecList Dec Exp Args
 
 %right ASSIGNOP
-%left OR
-%left AND
-%left RELOP
-%left PLUS MINUS
+%left OR AND 
+%left RELOP PLUS MINUS
 %left STAR DIV
 %right NOT
 %left LP RP RB LB DOT
 %nonassoc ELSE
 %nonassoc LOWER_THAN_ELSE
-
-
 %%
-Program: ExtDefList {$$=addNode(@$.first_line,"Program",NOT_A_TOKEN,1,$1);root=$$;}      
+// TODO: 语法分析树构建
+Program: ExtDefList {$$=InsertNode(@$.first_line,"Program",TOKEN_ILLEGAL,1,$1);root=$$;}      
     ;
-ExtDefList:         ExtDef ExtDefList {$$ = addNode(@$.first_line,"ExtDefList",NOT_A_TOKEN,2,$1,$2);}
+ExtDefList:         ExtDef ExtDefList {$$ = InsertNode(@$.first_line,"ExtDefList",TOKEN_ILLEGAL,2,$1,$2);}
     |                                                          {$$=NULL;}
     ;
-ExtDef:             Specifier ExtDecList SEMI               {$$ = addNode(@$.first_line,"ExtDef",NOT_A_TOKEN,3,$1,$2,$3);}
-    |               Specifier SEMI                          {$$ = addNode(@$.first_line,"ExtDef",NOT_A_TOKEN,2,$1,$2);}
-    |               Specifier FunDec CompSt                 {$$ = addNode(@$.first_line,"ExtDef",NOT_A_TOKEN,3,$1,$2,$3);}
+ExtDef:             Specifier ExtDecList SEMI               {$$ = InsertNode(@$.first_line,"ExtDef",TOKEN_ILLEGAL,3,$1,$2,$3);}
+    |               Specifier SEMI                          {$$ = InsertNode(@$.first_line,"ExtDef",TOKEN_ILLEGAL,2,$1,$2);}
+    |               Specifier FunDec CompSt                 {$$ = InsertNode(@$.first_line,"ExtDef",TOKEN_ILLEGAL,3,$1,$2,$3);}
     |               error SEMI                              {synError=1;}
     ;
-ExtDecList:         VarDec                                  { $$ = addNode(@$.first_line, "ExtDecList", NOT_A_TOKEN, 1, $1); }
-    |               VarDec COMMA ExtDecList                 { $$ = addNode(@$.first_line, "ExtDecList", NOT_A_TOKEN, 3, $1, $2, $3); }
+ExtDecList:         VarDec                                  { $$ = InsertNode(@$.first_line, "ExtDecList", TOKEN_ILLEGAL, 1, $1); }
+    |               VarDec COMMA ExtDecList                 { $$ = InsertNode(@$.first_line, "ExtDecList", TOKEN_ILLEGAL, 3, $1, $2, $3); }
     ; 
 
 // Specifiers
-Specifier:          TYPE                                    { $$ = addNode(@$.first_line, "Specifier", NOT_A_TOKEN, 1, $1); }
-    |               StructSpecifier                         { $$ = addNode(@$.first_line, "Specifier",  NOT_A_TOKEN,1, $1); }
+Specifier:          TYPE                                    { $$ = InsertNode(@$.first_line, "Specifier", TOKEN_ILLEGAL, 1, $1); }
+    |               StructSpecifier                         { $$ = InsertNode(@$.first_line, "Specifier",  TOKEN_ILLEGAL,1, $1); }
     ; 
-StructSpecifier:    STRUCT OptTag LC DefList RC             { $$ = addNode(@$.first_line,"StructSpecifier", NOT_A_TOKEN, 5, $1, $2, $3, $4, $5); }
-    |               STRUCT Tag                              { $$ = addNode(@$.first_line,"StructSpecifier",  NOT_A_TOKEN,2, $1, $2); }
+StructSpecifier:    STRUCT OptTag LC DefList RC             { $$ = InsertNode(@$.first_line,"StructSpecifier", TOKEN_ILLEGAL, 5, $1, $2, $3, $4, $5); }
+    |               STRUCT Tag                              { $$ = InsertNode(@$.first_line,"StructSpecifier",  TOKEN_ILLEGAL,2, $1, $2); }
     ; 
-OptTag:             ID                                      { $$ = addNode(@$.first_line,"OptTag", NOT_A_TOKEN, 1, $1); }
+OptTag:             ID                                      { $$ = InsertNode(@$.first_line,"OptTag", TOKEN_ILLEGAL, 1, $1); }
     |                                                       { $$ = NULL; }
     ; 
-Tag:                ID                                      { $$ = addNode(@$.first_line, "Tag",  NOT_A_TOKEN,1, $1); }
+Tag:                ID                                      { $$ = InsertNode(@$.first_line, "Tag",  TOKEN_ILLEGAL,1, $1); }
     ; 
 
 // Declarators
-VarDec:             ID                                      { $$ = addNode(@$.first_line, "VarDec",  NOT_A_TOKEN,1, $1); }
-    |               VarDec LB INT RB                        { $$ = addNode(@$.first_line,  "VarDec", NOT_A_TOKEN,4, $1, $2, $3, $4); }
+VarDec:             ID                                      { $$ = InsertNode(@$.first_line, "VarDec",  TOKEN_ILLEGAL,1, $1); }
+    |               VarDec LB INT RB                        { $$ = InsertNode(@$.first_line,  "VarDec", TOKEN_ILLEGAL,4, $1, $2, $3, $4); }
     |               error RB                                {synError=1;}
     ;
-FunDec:             ID LP VarList RP                        { $$ = addNode(@$.first_line, "FunDec", NOT_A_TOKEN, 4, $1, $2, $3, $4); }
-    |               ID LP RP                                { $$ = addNode(@$.first_line,  "FunDec", NOT_A_TOKEN,3, $1, $2, $3); }
+FunDec:             ID LP VarList RP                        { $$ = InsertNode(@$.first_line, "FunDec", TOKEN_ILLEGAL, 4, $1, $2, $3, $4); }
+    |               ID LP RP                                { $$ = InsertNode(@$.first_line,  "FunDec", TOKEN_ILLEGAL,3, $1, $2, $3); }
     |               error RP                                {synError=1;}
     ; 
-VarList:            ParamDec COMMA VarList                  { $$ = addNode(@$.first_line,  "VarList", NOT_A_TOKEN, 3, $1, $2, $3); }
-    |               ParamDec                                { $$ = addNode(@$.first_line, "VarList", NOT_A_TOKEN, 1, $1); }
+VarList:            ParamDec COMMA VarList                  { $$ = InsertNode(@$.first_line,  "VarList", TOKEN_ILLEGAL, 3, $1, $2, $3); }
+    |               ParamDec                                { $$ = InsertNode(@$.first_line, "VarList", TOKEN_ILLEGAL, 1, $1); }
     ; 
-ParamDec:           Specifier VarDec                        { $$ = addNode(@$.first_line,  "ParamDec", NOT_A_TOKEN, 2, $1, $2); }
+ParamDec:           Specifier VarDec                        { $$ = InsertNode(@$.first_line,  "ParamDec", TOKEN_ILLEGAL, 2, $1, $2); }
     ; 
 // Statements
-CompSt:             LC DefList StmtList RC                  { $$ = addNode(@$.first_line, "CompSt", NOT_A_TOKEN, 4, $1, $2, $3, $4); }
+CompSt:             LC DefList StmtList RC                  { $$ = InsertNode(@$.first_line, "CompSt", TOKEN_ILLEGAL, 4, $1, $2, $3, $4); }
     |               error RC                                {synError=1;}
     ; 
-StmtList:           Stmt StmtList                           { $$ = addNode(@$.first_line, "StmtList", NOT_A_TOKEN, 2, $1, $2); }
+StmtList:           Stmt StmtList                           { $$ = InsertNode(@$.first_line, "StmtList", TOKEN_ILLEGAL, 2, $1, $2); }
     |                                                       { $$ = NULL; }
     ; 
-Stmt:               Exp SEMI                                { $$ = addNode(@$.first_line,"Stmt", NOT_A_TOKEN, 2, $1, $2); }
-    |               CompSt                                  { $$ = addNode(@$.first_line,"Stmt", NOT_A_TOKEN, 1, $1); }
-    |               RETURN Exp SEMI                         { $$ = addNode(@$.first_line,"Stmt", NOT_A_TOKEN, 3, $1, $2, $3); }    
-    |               IF LP Exp RP Stmt                       { $$ = addNode(@$.first_line, "Stmt", NOT_A_TOKEN, 5, $1, $2, $3, $4, $5); }
-    |               IF LP Exp RP Stmt ELSE Stmt             { $$ = addNode(@$.first_line,"Stmt", NOT_A_TOKEN, 7, $1, $2, $3, $4, $5, $6, $7); }
-    |               WHILE LP Exp RP Stmt                    { $$ = addNode(@$.first_line,"Stmt",  NOT_A_TOKEN,5, $1, $2, $3, $4, $5); }
+Stmt:               Exp SEMI                                { $$ = InsertNode(@$.first_line,"Stmt", TOKEN_ILLEGAL, 2, $1, $2); }
+    |               CompSt                                  { $$ = InsertNode(@$.first_line,"Stmt", TOKEN_ILLEGAL, 1, $1); }
+    |               RETURN Exp SEMI                         { $$ = InsertNode(@$.first_line,"Stmt", TOKEN_ILLEGAL, 3, $1, $2, $3); }    
+    |               IF LP Exp RP Stmt                       { $$ = InsertNode(@$.first_line, "Stmt", TOKEN_ILLEGAL, 5, $1, $2, $3, $4, $5); }
+    |               IF LP Exp RP Stmt ELSE Stmt             { $$ = InsertNode(@$.first_line,"Stmt", TOKEN_ILLEGAL, 7, $1, $2, $3, $4, $5, $6, $7); }
+    |               WHILE LP Exp RP Stmt                    { $$ = InsertNode(@$.first_line,"Stmt",  TOKEN_ILLEGAL,5, $1, $2, $3, $4, $5); }
     |               error SEMI                              {synError=1;}
     ; 
 // Local Definitions
-DefList:            Def DefList                             { $$ = addNode(@$.first_line,  "DefList", NOT_A_TOKEN, 2, $1, $2); }
+DefList:            Def DefList                             { $$ = InsertNode(@$.first_line,  "DefList", TOKEN_ILLEGAL, 2, $1, $2); }
     |                                                       { $$ = NULL; }
     ;     
-Def:                Specifier DecList SEMI                  { $$ = addNode(@$.first_line,  "Def", NOT_A_TOKEN, 3, $1, $2, $3); }
+Def:                Specifier DecList SEMI                  { $$ = InsertNode(@$.first_line,  "Def", TOKEN_ILLEGAL, 3, $1, $2, $3); }
     ; 
-DecList:            Dec                                     { $$ = addNode(@$.first_line,  "DecList", NOT_A_TOKEN, 1, $1); }
-    |               Dec COMMA DecList                       { $$ = addNode(@$.first_line,  "DecList", NOT_A_TOKEN, 3, $1, $2, $3); }
+DecList:            Dec                                     { $$ = InsertNode(@$.first_line,  "DecList", TOKEN_ILLEGAL, 1, $1); }
+    |               Dec COMMA DecList                       { $$ = InsertNode(@$.first_line,  "DecList", TOKEN_ILLEGAL, 3, $1, $2, $3); }
     ; 
-Dec:                VarDec                                  { $$ = addNode(@$.first_line,  "Dec", NOT_A_TOKEN, 1, $1); }
-    |               VarDec ASSIGNOP Exp                     { $$ = addNode(@$.first_line,  "Dec", NOT_A_TOKEN, 3, $1, $2, $3); }
+Dec:                VarDec                                  { $$ = InsertNode(@$.first_line,  "Dec", TOKEN_ILLEGAL, 1, $1); }
+    |               VarDec ASSIGNOP Exp                     { $$ = InsertNode(@$.first_line,  "Dec", TOKEN_ILLEGAL, 3, $1, $2, $3); }
     ; 
 //7.1.7 Expressions
-Exp:                Exp ASSIGNOP Exp                        { $$ = addNode(@$.first_line,  "Exp", NOT_A_TOKEN, 3, $1, $2, $3); }
-    |               Exp AND Exp                             { $$ = addNode(@$.first_line,  "Exp", NOT_A_TOKEN, 3, $1, $2, $3); }
-    |               Exp OR Exp                              { $$ = addNode(@$.first_line,  "Exp", NOT_A_TOKEN, 3, $1, $2, $3); }
-    |               Exp RELOP Exp                           { $$ = addNode(@$.first_line,  "Exp", NOT_A_TOKEN, 3, $1, $2, $3); }
-    |               Exp PLUS Exp                            { $$ = addNode(@$.first_line,  "Exp", NOT_A_TOKEN, 3, $1, $2, $3); }
-    |               Exp MINUS Exp                           { $$ = addNode(@$.first_line,  "Exp", NOT_A_TOKEN, 3, $1, $2, $3); }
-    |               Exp STAR Exp                            { $$ = addNode(@$.first_line,  "Exp", NOT_A_TOKEN, 3, $1, $2, $3); }
-    |               Exp DIV Exp                             { $$ = addNode(@$.first_line,  "Exp", NOT_A_TOKEN, 3, $1, $2, $3); }
-    |               LP Exp RP                               { $$ = addNode(@$.first_line,  "Exp", NOT_A_TOKEN, 3, $1, $2, $3); }
-    |               MINUS Exp                               { $$ = addNode(@$.first_line,  "Exp", NOT_A_TOKEN, 2, $1, $2); }
-    |               NOT Exp                                 { $$ = addNode(@$.first_line,  "Exp", NOT_A_TOKEN, 2, $1, $2); }
-    |               ID LP Args RP                           { $$ = addNode(@$.first_line,  "Exp", NOT_A_TOKEN, 4, $1, $2, $3, $4); }
-    |               ID LP RP                                { $$ = addNode(@$.first_line,  "Exp", NOT_A_TOKEN, 3, $1, $2, $3); }
-    |               Exp LB Exp RB                           { $$ = addNode(@$.first_line,  "Exp", NOT_A_TOKEN, 4, $1, $2, $3, $4); }
-    |               Exp DOT ID                              { $$ = addNode(@$.first_line,  "Exp", NOT_A_TOKEN, 3, $1, $2, $3); }
-    |               ID                                      { $$ = addNode(@$.first_line,  "Exp", NOT_A_TOKEN, 1, $1); }
-    |               INT                                     { $$ = addNode(@$.first_line,  "Exp", NOT_A_TOKEN, 1, $1); }
-    |               FLOAT                                   { $$ = addNode(@$.first_line,  "Exp", NOT_A_TOKEN, 1, $1); }
+Exp:                Exp ASSIGNOP Exp                        { $$ = InsertNode(@$.first_line,  "Exp", TOKEN_ILLEGAL, 3, $1, $2, $3); }
+    |               Exp AND Exp                             { $$ = InsertNode(@$.first_line,  "Exp", TOKEN_ILLEGAL, 3, $1, $2, $3); }
+    |               Exp OR Exp                              { $$ = InsertNode(@$.first_line,  "Exp", TOKEN_ILLEGAL, 3, $1, $2, $3); }
+    |               Exp RELOP Exp                           { $$ = InsertNode(@$.first_line,  "Exp", TOKEN_ILLEGAL, 3, $1, $2, $3); }
+    |               Exp PLUS Exp                            { $$ = InsertNode(@$.first_line,  "Exp", TOKEN_ILLEGAL, 3, $1, $2, $3); }
+    |               Exp MINUS Exp                           { $$ = InsertNode(@$.first_line,  "Exp", TOKEN_ILLEGAL, 3, $1, $2, $3); }
+    |               Exp STAR Exp                            { $$ = InsertNode(@$.first_line,  "Exp", TOKEN_ILLEGAL, 3, $1, $2, $3); }
+    |               Exp DIV Exp                             { $$ = InsertNode(@$.first_line,  "Exp", TOKEN_ILLEGAL, 3, $1, $2, $3); }
+    |               LP Exp RP                               { $$ = InsertNode(@$.first_line,  "Exp", TOKEN_ILLEGAL, 3, $1, $2, $3); }
+    |               MINUS Exp                               { $$ = InsertNode(@$.first_line,  "Exp", TOKEN_ILLEGAL, 2, $1, $2); }
+    |               NOT Exp                                 { $$ = InsertNode(@$.first_line,  "Exp", TOKEN_ILLEGAL, 2, $1, $2); }
+    |               ID LP Args RP                           { $$ = InsertNode(@$.first_line,  "Exp", TOKEN_ILLEGAL, 4, $1, $2, $3, $4); }
+    |               ID LP RP                                { $$ = InsertNode(@$.first_line,  "Exp", TOKEN_ILLEGAL, 3, $1, $2, $3); }
+    |               Exp LB Exp RB                           { $$ = InsertNode(@$.first_line,  "Exp", TOKEN_ILLEGAL, 4, $1, $2, $3, $4); }
+    |               Exp DOT ID                              { $$ = InsertNode(@$.first_line,  "Exp", TOKEN_ILLEGAL, 3, $1, $2, $3); }
+    |               ID                                      { $$ = InsertNode(@$.first_line,  "Exp", TOKEN_ILLEGAL, 1, $1); }
+    |               INT                                     { $$ = InsertNode(@$.first_line,  "Exp", TOKEN_ILLEGAL, 1, $1); }
+    |               FLOAT                                   { $$ = InsertNode(@$.first_line,  "Exp", TOKEN_ILLEGAL, 1, $1); }
     ; 
-Args :              Exp COMMA Args                          { $$ = addNode(@$.first_line,  "Args", NOT_A_TOKEN, 3, $1, $2, $3); }
-    |               Exp                                     { $$ = addNode(@$.first_line,  "Args", NOT_A_TOKEN, 1, $1); }
+Args :              Exp COMMA Args                          { $$ = InsertNode(@$.first_line,  "Args", TOKEN_ILLEGAL, 3, $1, $2, $3); }
+    |               Exp                                     { $$ = InsertNode(@$.first_line,  "Args", TOKEN_ILLEGAL, 1, $1); }
     ; 
 %%
-
 void yyerror(const char *msg){
     fprintf(stderr, "Error type B at line %d: %s.\n", yylineno, msg);
 }
