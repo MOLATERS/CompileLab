@@ -9,16 +9,14 @@ struct TNode* root;
 %}
 
 %union{ // 将所有可能的类型都包含进去
-    struct TNode* node;
+    TreeNode node;
 }
 
-// tokens
 %token <node> INT FLOAT ID
 %token <node> SEMI COMMA ASSIGNOP RELOP PLUS MINUS STAR DIV
 %token <node> AND OR DOT NOT TYPE LP RP LB RB LC RC
 %token <node> STRUCT RETURN IF ELSE WHILE
 
-// not taken
 %type <node> Program ExtDefList ExtDef ExtDecList
 %type <node> Specifier StructSpecifier OptTag Tag
 %type <node> VarDec FunDec VarList ParamDec CompSt
@@ -30,10 +28,11 @@ struct TNode* root;
 %left STAR DIV
 %right NOT
 %left LP RP RB LB DOT
+
 %nonassoc ELSE
 %nonassoc LOWER_THAN_ELSE
+
 %%
-// TODO: 语法分析树构建
 Program: ExtDefList {$$=InsertNode(@$.first_line,"Program",TOKEN_ILLEGAL,1,$1);root=$$;}      
     ;
 ExtDefList:         ExtDef ExtDefList {$$ = InsertNode(@$.first_line,"ExtDefList",TOKEN_ILLEGAL,2,$1,$2);}
@@ -48,7 +47,6 @@ ExtDecList:         VarDec                                  { $$ = InsertNode(@$
     |               VarDec COMMA ExtDecList                 { $$ = InsertNode(@$.first_line, "ExtDecList", TOKEN_ILLEGAL, 3, $1, $2, $3); }
     ; 
 
-// Specifiers
 Specifier:          TYPE                                    { $$ = InsertNode(@$.first_line, "Specifier", TOKEN_ILLEGAL, 1, $1); }
     |               StructSpecifier                         { $$ = InsertNode(@$.first_line, "Specifier",  TOKEN_ILLEGAL,1, $1); }
     ; 
@@ -61,7 +59,6 @@ OptTag:             ID                                      { $$ = InsertNode(@$
 Tag:                ID                                      { $$ = InsertNode(@$.first_line, "Tag",  TOKEN_ILLEGAL,1, $1); }
     ; 
 
-// Declarators
 VarDec:             ID                                      { $$ = InsertNode(@$.first_line, "VarDec",  TOKEN_ILLEGAL,1, $1); }
     |               VarDec LB INT RB                        { $$ = InsertNode(@$.first_line,  "VarDec", TOKEN_ILLEGAL,4, $1, $2, $3, $4); }
     |               error RB                                {synError=1;}
@@ -75,7 +72,7 @@ VarList:            ParamDec COMMA VarList                  { $$ = InsertNode(@$
     ; 
 ParamDec:           Specifier VarDec                        { $$ = InsertNode(@$.first_line,  "ParamDec", TOKEN_ILLEGAL, 2, $1, $2); }
     ; 
-// Statements
+
 CompSt:             LC DefList StmtList RC                  { $$ = InsertNode(@$.first_line, "CompSt", TOKEN_ILLEGAL, 4, $1, $2, $3, $4); }
     |               error RC                                {synError=1;}
     ; 
@@ -90,7 +87,7 @@ Stmt:               Exp SEMI                                { $$ = InsertNode(@$
     |               WHILE LP Exp RP Stmt                    { $$ = InsertNode(@$.first_line,"Stmt",  TOKEN_ILLEGAL,5, $1, $2, $3, $4, $5); }
     |               error SEMI                              {synError=1;}
     ; 
-// Local Definitions
+
 DefList:            Def DefList                             { $$ = InsertNode(@$.first_line,  "DefList", TOKEN_ILLEGAL, 2, $1, $2); }
     |                                                       { $$ = NULL; }
     ;     
@@ -102,7 +99,7 @@ DecList:            Dec                                     { $$ = InsertNode(@$
 Dec:                VarDec                                  { $$ = InsertNode(@$.first_line,  "Dec", TOKEN_ILLEGAL, 1, $1); }
     |               VarDec ASSIGNOP Exp                     { $$ = InsertNode(@$.first_line,  "Dec", TOKEN_ILLEGAL, 3, $1, $2, $3); }
     ; 
-//7.1.7 Expressions
+
 Exp:                Exp ASSIGNOP Exp                        { $$ = InsertNode(@$.first_line,  "Exp", TOKEN_ILLEGAL, 3, $1, $2, $3); }
     |               Exp AND Exp                             { $$ = InsertNode(@$.first_line,  "Exp", TOKEN_ILLEGAL, 3, $1, $2, $3); }
     |               Exp OR Exp                              { $$ = InsertNode(@$.first_line,  "Exp", TOKEN_ILLEGAL, 3, $1, $2, $3); }
@@ -125,6 +122,7 @@ Exp:                Exp ASSIGNOP Exp                        { $$ = InsertNode(@$
 Args :              Exp COMMA Args                          { $$ = InsertNode(@$.first_line,  "Args", TOKEN_ILLEGAL, 3, $1, $2, $3); }
     |               Exp                                     { $$ = InsertNode(@$.first_line,  "Args", TOKEN_ILLEGAL, 1, $1); }
     ; 
+
 %%
 void yyerror(const char *msg){
     fprintf(stderr, "Error type B at line %d: %s.\n", yylineno, msg);

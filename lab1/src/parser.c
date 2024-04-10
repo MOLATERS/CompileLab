@@ -64,6 +64,7 @@ TreeNode InsertNode(int lineno, char* name, enum NODE_TYPE type, int argc, ...){
 
 TreeNode InsertLeaf(int lineno, char* name, enum NODE_TYPE type, char* value){
     TreeNode leaf = (struct TNode*)malloc(sizeof(struct TNode));
+
     if(leaf == NULL)return NULL;
     leaf->lineno = lineno;
     leaf->name = strdup(name);
@@ -71,6 +72,7 @@ TreeNode InsertLeaf(int lineno, char* name, enum NODE_TYPE type, char* value){
     leaf->type = type;
     leaf->child = NULL;
     leaf->brother = NULL;
+
     switch(type){
         case TOKEN_FLOAT:
             leaf->value_float = atof(value);
@@ -85,6 +87,7 @@ TreeNode InsertLeaf(int lineno, char* name, enum NODE_TYPE type, char* value){
         default:
             break;
     }
+
     return leaf;
 }
 

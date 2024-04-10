@@ -51,17 +51,18 @@ LINE_COMMENT ("//"[.]*)
 BLOCK_COMMENT "/\*"[.]*"\*/"
 COMMENT {LINE_COMMENT}|{BLOCK_COMMENT}
 SPACE [\n\r\t ]+
-AERROR .
 INT8_ERROR 0[0-7]*[8-9]+[0-7]*
 INT16_ERROR 0[Xx][a-fA-F0-9]*[g-zG-Z]+[a-fA-F0-9]*
 FLOAT_ERROR [0]+(0|[1-9][0-9]*)\.[0-9]+|\.[0-9]+|[0-9]+\.|[0-9]+[Ee][+-]?[0-9]*|([+-]?([0-9]*\.[0-9]+|[0-9]+\.[0-9]*)[Ee][+-]?[0-9]+\.[0-9]+)
 NUM_ERROR {INT8_ERROR}|{INT16_ERROR}|{FLOAT_ERROR}
 ID_ERROR [0-9]+[a-zA-Z_]+
+AERROR .
+
 %%
 {SPACE} {}
 "//" { char c = input(); while (c != '\n') c = input(); }
 "/*" {
-    int state = 0;
+   int state = 0;
     char c;
     int flag = 1;
     int front = 0;
@@ -124,9 +125,14 @@ ID_ERROR [0-9]+[a-zA-Z_]+
 {INT} { yylval.node = InsertLeaf(yylineno, "INT", TOKEN_INT, yytext); return INT;}
 {FLOAT} { yylval.node = InsertLeaf(yylineno, "FLOAT", TOKEN_FLOAT, yytext); return FLOAT;}
 
+{NUM_ERROR} {
+    lexError = 1;
+    printf("Error type A at line %d: error number format '%s'\n", yylineno, yytext);
+}
+
 {AERROR} { 
     lexError = 1;
     // if(strcmp(yytext," ")) printf("is empty ");
-    printf("error type A at line %d: mysterious character '%s'\n", yylineno, yytext);
+    printf("Error type A at line %d: mysterious character '%s'\n", yylineno, yytext);
 }
 %%
