@@ -37,7 +37,7 @@ int string_to_num(char* text){
     }
 }
 
-TreeNode InsertNode(int lineno, char* name, enum NODE_TYPE type, int argc, ...){
+TreeNode InsertNode(int lineno, char* name, NodeType type, int argc, ...){
     TreeNode newNode = (struct TNode*)malloc(sizeof(struct TNode));
     if(newNode == NULL) return NULL;
     newNode->lineno = lineno;
@@ -62,7 +62,7 @@ TreeNode InsertNode(int lineno, char* name, enum NODE_TYPE type, int argc, ...){
     }
 }
 
-TreeNode InsertLeaf(int lineno, char* name, enum NODE_TYPE type, char* value){
+TreeNode InsertLeaf(int lineno, char* name, NodeType type, char* value){
     TreeNode leaf = (struct TNode*)malloc(sizeof(struct TNode));
 
     if(leaf == NULL)return NULL;

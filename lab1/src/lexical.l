@@ -1,4 +1,5 @@
 %{
+
     #include <stdio.h>
     #include <stdlib.h>
     #include "parser.h"
@@ -13,6 +14,12 @@
         yylloc.first_column = yycolumn;\
         yylloc.last_column = yycolumn + yyleng - 1;\
         yycolumn += yyleng;
+
+    // #define YY_INPUT(buf,result,max_size)  {/
+    //     result = GetNextChar(buf, max_size); /
+    //     if (  result <= 0  ) /
+    //         result = YY_NULL; /
+    // }
 
 %}
 %option yylineno
@@ -62,34 +69,54 @@ AERROR .
 {SPACE} {}
 "//" { char c = input(); while (c != '\n') c = input(); }
 "/*" {
-   int state = 0;
+
+    // int state = 0;
+    // char c;
+    // int flag = 1;
+    // int front = 0;
+    // while(flag){
+    //     switch(state){
+    //         case 0:
+    //             c = input();
+    //             if(c == EOF) flag = 0;
+    //             if(c == '*') state = 1; 
+    //             if(c == '/') state = 2;
+    //             break;
+    //         case 1:
+    //             c = input();
+    //             if(c == EOF) flag = 0;
+    //             if(c == '/') {
+    //                 if(front == 0) flag = 0;  
+    //                 else front--;
+    //             }
+    //             else state = 0;
+    //             break;
+    //         case 2:
+    //             c = input();
+    //             if(c == '*') front++;
+    //             state = 0;
+    //             break;
+    //         default:
+    //             break;
+    //     }
+    // }
+   int q = 0;
     char c;
-    int flag = 1;
-    int front = 0;
-    while(flag){
-        switch(state){
-            case 0:
-                c = input();
-                if(c == EOF) flag = 0;
-                if(c == '*') state = 1; 
-                if(c == '/') state = 2;
+    while(1){
+        if(q == 0){
+            c = input();
+            if(c == EOF)
                 break;
-            case 1:
-                c = input();
-                if(c == EOF) flag = 0;
-                if(c == '/') {
-                    if(front == 0) flag = 0;  
-                    else front--;
-                }
-                else state = 0;
+            if(c == '*')
+                q = 1;
+        }else{
+            c = input();
+            if(c == EOF)
                 break;
-            case 2:
-                c = input();
-                if(c == '*') front++;
-                state = 0;
+            if(c == '/')
                 break;
-            default:
-                break;
+            else if(c != '*')
+                q = 0;
         }
     }
 }

@@ -36,7 +36,7 @@ Program (1)
        SEMI
     RC
 =========================optest1.cmm==========================
-Error type B at line 3: syntax error.
+Error type B at line 3: syntax error, unexpected SEMI. at place ';' 
 Error type A at line 3: error number format '09'
 Error type A at line 4: error number format '0x3G'
 =========================optest2.cmm==========================
@@ -65,7 +65,7 @@ Program (1)
       SEMI
     RC
 =========================optest3.cmm==========================
-Error type B at line 3: syntax error.
+Error type B at line 3: syntax error, unexpected ID. at place 'e' 
 =========================optest4.cmm==========================
 Program (1)
  ExtDefList (1)
@@ -92,35 +92,12 @@ Program (1)
       SEMI
     RC
 =========================optest5.cmm==========================
-Program (1)
- ExtDefList (1)
-  ExtDef (1)
-   Specifier (1)
-    TYPE int
-   FunDec (1)
-    ID main
-    LP
-    RP
-   CompSt (2)
-    LC
-    DefList (9)
-     Def (9)
-      Specifier (9)
-       TYPE int
-      DecList (9)
-       Dec (9)
-        VarDec (9)
-         ID i
-        ASSIGNOP
-        Exp (9)
-         INT 1
-      SEMI
-    RC
+Error type B at line 8: syntax error, unexpected STAR. at place '*' 
 =========================test.cmm==========================
 Error type A at line 4: mysterious character '~'
 =========================test1.cmm==========================
-Error type B at line 5: syntax error.
-Error type B at line 6: syntax error.
+Error type B at line 5: syntax error, unexpected COMMA. at place ',' 
+Error type B at line 6: syntax error, unexpected ELSE. at place 'else' 
 =========================test2.cmm==========================
 Program (1)
  ExtDefList (1)

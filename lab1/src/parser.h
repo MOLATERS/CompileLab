@@ -8,14 +8,14 @@
 #include "assert.h"
 #include "ctype.h"
 
-enum NODE_TYPE{
+typedef enum NODE_TYPE{
     TOKEN_TYPE,
     TOKEN_ID,
     TOKEN_INT,
     TOKEN_FLOAT,
     TOKEN_OTHER,
     TOKEN_ILLEGAL
-};
+}NodeType;
 
 typedef struct TNode{
     int lineno;
@@ -29,10 +29,10 @@ typedef struct TNode{
     struct TNode* brother;
 }TNode,*TreeNode;
 
-struct TNode* InsertLeaf(int lineno, char* name, enum NODE_TYPE type, char* value);
-struct TNode* InsertNode(int lineno, char* name, enum NODE_TYPE type, int argc, ...);
+TreeNode InsertLeaf(int lineno, char* name, NodeType type, char* value);
+TreeNode InsertNode(int lineno, char* name, NodeType type, int argc, ...);
 int string_to_num(char* text);
 void ReleaseNode(struct TNode* node);
 void PreOrder(struct TNode* node, int layer);
-void yyerror(const char *msg);
+void yyerror( const char *msg);
 #endif

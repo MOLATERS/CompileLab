@@ -12,6 +12,8 @@ struct TNode* root;
     TreeNode node;
 }
 
+%define parse.lac full
+%define parse.error verbose
 %token <node> INT FLOAT ID
 %token <node> SEMI COMMA ASSIGNOP RELOP PLUS MINUS STAR DIV
 %token <node> AND OR DOT NOT TYPE LP RP LB RB LC RC
@@ -28,7 +30,6 @@ struct TNode* root;
 %left STAR DIV
 %right NOT
 %left LP RP RB LB DOT
-
 %nonassoc ELSE
 %nonassoc LOWER_THAN_ELSE
 
@@ -41,12 +42,11 @@ ExtDefList:         ExtDef ExtDefList {$$ = InsertNode(@$.first_line,"ExtDefList
 ExtDef:             Specifier ExtDecList SEMI               {$$ = InsertNode(@$.first_line,"ExtDef",TOKEN_ILLEGAL,3,$1,$2,$3);}
     |               Specifier SEMI                          {$$ = InsertNode(@$.first_line,"ExtDef",TOKEN_ILLEGAL,2,$1,$2);}
     |               Specifier FunDec CompSt                 {$$ = InsertNode(@$.first_line,"ExtDef",TOKEN_ILLEGAL,3,$1,$2,$3);}
-    |               error SEMI                              {synError=1;}
+    |               error SEMI                              {synError=1;  }
     ;
 ExtDecList:         VarDec                                  { $$ = InsertNode(@$.first_line, "ExtDecList", TOKEN_ILLEGAL, 1, $1); }
     |               VarDec COMMA ExtDecList                 { $$ = InsertNode(@$.first_line, "ExtDecList", TOKEN_ILLEGAL, 3, $1, $2, $3); }
     ; 
-
 Specifier:          TYPE                                    { $$ = InsertNode(@$.first_line, "Specifier", TOKEN_ILLEGAL, 1, $1); }
     |               StructSpecifier                         { $$ = InsertNode(@$.first_line, "Specifier",  TOKEN_ILLEGAL,1, $1); }
     ; 
@@ -61,11 +61,11 @@ Tag:                ID                                      { $$ = InsertNode(@$
 
 VarDec:             ID                                      { $$ = InsertNode(@$.first_line, "VarDec",  TOKEN_ILLEGAL,1, $1); }
     |               VarDec LB INT RB                        { $$ = InsertNode(@$.first_line,  "VarDec", TOKEN_ILLEGAL,4, $1, $2, $3, $4); }
-    |               error RB                                {synError=1;}
+    |               error RB                                {synError=1; }
     ;
 FunDec:             ID LP VarList RP                        { $$ = InsertNode(@$.first_line, "FunDec", TOKEN_ILLEGAL, 4, $1, $2, $3, $4); }
     |               ID LP RP                                { $$ = InsertNode(@$.first_line,  "FunDec", TOKEN_ILLEGAL,3, $1, $2, $3); }
-    |               error RP                                {synError=1;}
+    |               error RP                                {synError=1; }
     ; 
 VarList:            ParamDec COMMA VarList                  { $$ = InsertNode(@$.first_line,  "VarList", TOKEN_ILLEGAL, 3, $1, $2, $3); }
     |               ParamDec                                { $$ = InsertNode(@$.first_line, "VarList", TOKEN_ILLEGAL, 1, $1); }
@@ -74,7 +74,7 @@ ParamDec:           Specifier VarDec                        { $$ = InsertNode(@$
     ; 
 
 CompSt:             LC DefList StmtList RC                  { $$ = InsertNode(@$.first_line, "CompSt", TOKEN_ILLEGAL, 4, $1, $2, $3, $4); }
-    |               error RC                                {synError=1;}
+    |               error RC                                {synError=1; }
     ; 
 StmtList:           Stmt StmtList                           { $$ = InsertNode(@$.first_line, "StmtList", TOKEN_ILLEGAL, 2, $1, $2); }
     |                                                       { $$ = NULL; }
@@ -85,7 +85,7 @@ Stmt:               Exp SEMI                                { $$ = InsertNode(@$
     |               IF LP Exp RP Stmt                       { $$ = InsertNode(@$.first_line, "Stmt", TOKEN_ILLEGAL, 5, $1, $2, $3, $4, $5); }
     |               IF LP Exp RP Stmt ELSE Stmt             { $$ = InsertNode(@$.first_line,"Stmt", TOKEN_ILLEGAL, 7, $1, $2, $3, $4, $5, $6, $7); }
     |               WHILE LP Exp RP Stmt                    { $$ = InsertNode(@$.first_line,"Stmt",  TOKEN_ILLEGAL,5, $1, $2, $3, $4, $5); }
-    |               error SEMI                              {synError=1;}
+    |               error SEMI                              {synError=1; }
     ; 
 
 DefList:            Def DefList                             { $$ = InsertNode(@$.first_line,  "DefList", TOKEN_ILLEGAL, 2, $1, $2); }
@@ -124,6 +124,6 @@ Args :              Exp COMMA Args                          { $$ = InsertNode(@$
     ; 
 
 %%
-void yyerror(const char *msg){
-    fprintf(stderr, "Error type B at line %d: %s.\n", yylineno, msg);
+void yyerror( const char *msg){
+    fprintf(stderr, "Error type B at line %d: %s. at place '%s' \n", yylineno, msg, yytext);
 }
