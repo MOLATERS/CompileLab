@@ -1,5 +1,6 @@
 struct Complex
 {
+    int a[];
     float real, image;
 };
 int main()

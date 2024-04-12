@@ -156,10 +156,15 @@ AERROR .
     lexError = 1;
     printf("Error type A at line %d: error number format '%s'\n", yylineno, yytext);
 }
-
+{ID_ERROR} {
+    lexError = 1;
+    printf("Error type A at line %d: error ID format '%s'\n", yylineno, yytext);
+}
 {AERROR} { 
     lexError = 1;
     // if(strcmp(yytext," ")) printf("is empty ");
     printf("Error type A at line %d: mysterious character '%s'\n", yylineno, yytext);
 }
+
+
 %%

@@ -24,7 +24,6 @@ typedef struct TNode{
     int value_int;
     float value_float;
     char* value_string;
-
     struct TNode* child;
     struct TNode* brother;
 }TNode,*TreeNode;
