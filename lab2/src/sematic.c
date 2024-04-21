@@ -92,7 +92,7 @@ TypePointer Specifier(TreeNode node, Stk stack)
     TreeNode child = node->child;
     if (!strcmp(child->name, "TYPE"))
     {
-        if (!strcmp(child->name, "float"))
+        if (!strcmp(child->value_string, "float"))
         {
             return newType(FLOAT_TYPE);
         }
@@ -525,7 +525,6 @@ TypePointer Exp(TreeNode node, Stack *stack)
             TypePointer p1 = Exp(t, stack);
             TypePointer p2 = Exp(t->brother->brother, stack);
             TypePointer returnType = NULL;
-
             // Exp -> Exp ASSIGNOP Exp
             if (!strcmp(t->brother->name, "ASSIGNOP"))
             {
@@ -576,7 +575,7 @@ TypePointer Exp(TreeNode node, Stack *stack)
                 else if (!is_equal(p1, p2))
                 {
                     // 报错，类型不匹配
-                    // printf("类型不匹配");
+                    printf("Error type 7 at line %d: Type mismatched for operands.",node->lineno);
                 }
                 else
                 {
@@ -674,7 +673,7 @@ TypePointer Exp(TreeNode node, Stack *stack)
         if (!p1 || (p1->kind != INT_TYPE && p1->kind != FLOAT_TYPE))
         {
             // 报错，数组，结构体运算
-            // printf("Error type 7 at Line %d: %s.\n", t->lineno, "TYPE_MISMATCH_OP");
+            printf("Error type 7 at Line %d: %s.\n", t->lineno, "Type mismatched for operands");
         }
         else
         {
@@ -719,7 +718,7 @@ TypePointer Exp(TreeNode node, Stack *stack)
         Item tp = stack_search_item(stack, t->value_string);
         if (tp == NULL || isStructDef(tp))
         { // 也不能是函数定义
-            printf("Error type 1 at Line %d:  Undefined variable %s.\n", t->lineno, t->value_string);
+            printf("Error type 1 at Line %d:  Undefined variable \"%s\".\n", t->lineno, t->value_string);
             return NULL;
         }
         else

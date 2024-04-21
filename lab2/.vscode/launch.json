@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/src/parser",
-            "args": ["${workspaceFolder}/test/test1.cmm"],
+            "args": ["${workspaceFolder}/test/test7.cmm"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],

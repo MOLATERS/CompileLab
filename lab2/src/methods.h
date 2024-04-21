@@ -107,5 +107,4 @@ void deleteStack(Stk stack);
 Item stack_search_item(Stack *stack, char *name);
 int conflict(Stack *stack, char *name);
 unsigned int get_hash_code(char* name);
-
 #endif
