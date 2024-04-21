@@ -64,7 +64,6 @@ TreeNode InsertNode(int lineno, char* name, NodeType type, int argc, ...){
 
 TreeNode InsertLeaf(int lineno, char* name, NodeType type, char* value){
     TreeNode leaf = (struct TNode*)malloc(sizeof(struct TNode));
-
     if(leaf == NULL)return NULL;
     leaf->lineno = lineno;
     leaf->name = strdup(name);

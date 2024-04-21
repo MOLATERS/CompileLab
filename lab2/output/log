@@ -1,10 +1,13 @@
-=========================test.cmm==========================
-text/test.cmm: No such file or directory
 =========================test1.cmm==========================
-text/test1.cmm: No such file or directory
-=========================test2.cmm==========================
-text/test2.cmm: No such file or directory
+Error type 1 at Line 3:  Undefined variable j.
+=========================test10.cmm==========================
+Error type 10 at line 3: "i" is not an array
+=========================test12.cmm==========================
+Error type 12 at line 3: "1.5" is not an integer.
 =========================test3.cmm==========================
-text/test3.cmm: No such file or directory
-=========================test4.cmm==========================
-text/test4.cmm: No such file or directory
+Error type 3 at line 4 Redefined variable i.
+=========================test5.cmm==========================
+Error type 5 at line 3: Type mismatched for assignment.
+=========================test6.cmm==========================
+Error type 6 at line 3: The left-hand side of an assignment must be a variable.
+=========================test7.cmm==========================

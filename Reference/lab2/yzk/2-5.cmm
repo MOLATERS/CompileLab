@@ -1,0 +1,16 @@
+int main()
+{
+
+/*
+ 666
+ */
+ 
+
+ int i=1;
+ /* comment1
+/*   
+coment
+*/
+*/
+int i = 1;
+}

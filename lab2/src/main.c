@@ -1,4 +1,5 @@
 #include "parser.h"
+#include "sematic.h"
 #include "stdio.h"
 #include "stdlib.h"
 
@@ -23,8 +24,13 @@ int main(int argc, char** argv) {
     }
     yyrestart(f);
     yyparse();
-    if (!lexError && !synError) {
-        PreOrder(root, 0);
-    }
+
+    // if (!lexError && !synError) {
+    //     PreOrder(root, 0);
+    // }
+
+    Stk stack = createStack();
+    Push(stack, initTable());
+    TreeScan(root, stack);
     return 0;
 }

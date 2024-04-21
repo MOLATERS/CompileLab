@@ -69,7 +69,6 @@ AERROR .
 {SPACE} {}
 "//" { char c = input(); while (c != '\n') c = input(); }
 "/*" {
-
     // int state = 0;
     // char c;
     // int flag = 1;
@@ -162,9 +161,6 @@ AERROR .
 }
 {AERROR} { 
     lexError = 1;
-    // if(strcmp(yytext," ")) printf("is empty ");
     printf("Error type A at line %d: mysterious character '%s'\n", yylineno, yytext);
 }
-
-
 %%
