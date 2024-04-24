@@ -16,12 +16,17 @@ if [ ! -d "./output/" ];
 fi
 
 rm ./output/log
-cat testlist | while read line
 
+echo `date` >> ./output/log
+echo "" >> ./output/log
+cat testlist | while read line
 do 
 echo "=========================$line==========================" >> ./output/log
 ./src/parser "test/$line" &>> ./output/log
 done
+echo " "
+cat ./output/log
+echo " "
 
 
 

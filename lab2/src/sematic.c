@@ -239,9 +239,6 @@ void FunDec(TreeNode node, TypePointer retype, Stk stack)
     if (!strcmp(node->child->brother->brother->name, "VarList"))
     {
         VarList(node->child->brother->brother, temp, stack);
-    }
-    if (!strcmp(node->child->brother->brother->name, "VarList"))
-    {
         Push(stack, initTable());
     }
 }
@@ -601,7 +598,6 @@ TypePointer Exp(TreeNode node, Stack *stack)
                 TypePointer p1 = Exp(t, stack);
                 TypePointer p2 = Exp(t->brother->brother, stack);
                 TypePointer returnType = NULL;
-
                 if (!p1)
                 {
                     // 第一个exp为null，上层报错，这里不用再管
