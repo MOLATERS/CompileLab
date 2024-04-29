@@ -22,7 +22,9 @@ echo "" >> ./output/log
 cat testlist | while read line
 do 
 echo "=========================$line==========================" >> ./output/log
+echo " " >> ./output/log
 ./src/parser "test/$line" &>> ./output/log
+echo " " >> ./output/log
 done
 echo " "
 cat ./output/log

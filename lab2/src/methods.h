@@ -19,18 +19,6 @@ typedef enum
     FUNC_TYPE
 } TypeName;
 
-typedef struct field
-{
-    char *name;
-    struct type *type;
-    struct field *next;
-} FieldList, *Field;
-
-typedef struct handle
-{
-    struct field *field;
-} FieldHandle, *Item;
-
 typedef struct type
 {
     TypeName kind;
@@ -55,6 +43,18 @@ typedef struct type
         } func;
     } detail;
 } Type, *TypePointer;
+
+typedef struct field
+{
+    char *name;
+    struct type *type;
+    struct field *next;
+} FieldList, *Field;
+
+typedef struct handle
+{
+    struct field *field;
+} FieldHandle, *Item;
 
 typedef struct entry
 {

@@ -174,7 +174,7 @@ void ExtDecList(TreeNode node, TypePointer speci, Stk stack)
         Item item = VarDec(temp->child, speci);
         if (conflict(stack, item->field->name))
         {
-            printf("Error type 3 at Line %d: Redefined variable %s.\n", temp->lineno, item->field->name);
+            printf("Error type 3  at Line %d: Redefined variable %s.\n", temp->lineno, item->field->name);
             deleteItem(item);
         }
         else
@@ -228,7 +228,6 @@ void FunDec(TreeNode node, TypePointer retype, Stk stack)
     Item temp = initItem(initFieldList(node->child->value_string, newType(FUNC_TYPE, 0, NULL, copyType(retype))));
     if (conflict(stack, temp->field->name))
     {
-        printf("Error type 4 at Line %d Redefined function %s.\n", node->lineno, temp->field->name);
         deleteItem(temp);
         temp = NULL;
     }
@@ -283,7 +282,7 @@ Field ParamDec(TreeNode node, Stack *stack)
         deleteType(specifierType);
     if (conflict(stack, p->field->name))
     {
-        printf("Error type 3 at line %d Redefined variable %s.\n", node->lineno, p->field->name);
+        printf("Error type 3  at Line %d: Redefined variable %s.\n", node->lineno, p->field->name);
         deleteItem(p);
         return NULL;
     }
@@ -430,7 +429,7 @@ void Dec(TreeNode node, TypePointer specifier, Item structInfo, Stack *stack)
             if (conflict(stack, decitem->field->name))
             {
                 // 出现冲突，报错
-                printf("Error type 3 at line %d Redefined variable %s.\n", node->lineno,
+                printf("Error type 3  at Line %d: Redefined variable %s.\n", node->lineno,
                        decitem->field->name);
                 deleteItem(decitem);
             }
@@ -448,14 +447,14 @@ void Dec(TreeNode node, TypePointer specifier, Item structInfo, Stack *stack)
         if (conflict(stack, decitem->field->name))
         {
             // 出现冲突，报错
-            printf("Error type 3 at line %d Redefined variable %s.\n", node->lineno, decitem->field->name);
+            printf("Error type 3  at line %d Redefined variable %s.\n", node->lineno, decitem->field->name);
             deleteItem(decitem);
             return;
         }
         if (!is_equal(decitem->field->type, exptype))
         {
             // 类型不相符
-            printf("Error type 5 at line %d Type mismatched for assignment\n",node->lineno);
+            printf("Error type 5  at line %d Type mismatched for assignment\n",node->lineno);
             deleteItem(decitem);
             return;
         }
@@ -533,7 +532,7 @@ TypePointer Exp(TreeNode node, Stack *stack)
                 {
                     // 报错，左值
                     // printf("左值");
-                    printf("Error type 6 at line %d: The left-hand side of an assignment must be a variable.\n", node->lineno);
+                    printf("Error type 6  at line %d: The left-hand side of an assignment must be a variable.\n", node->lineno);
                 }
                 else if (!strcmp(tchild->name, "ID") ||
                          !strcmp(tchild->brother->name, "LB") ||
@@ -542,7 +541,7 @@ TypePointer Exp(TreeNode node, Stack *stack)
                     if (!is_equal(p1, p2))
                     {
                         // 报错，类型不匹配
-                        printf("Error type 5 at line %d: Type mismatched for assignment.\n", node->lineno);
+                        printf("Error type 5  at line %d: Type mismatched for assignment.\n", node->lineno);
                     }
                     else
                     {
@@ -552,7 +551,7 @@ TypePointer Exp(TreeNode node, Stack *stack)
                 else
                 {
                     // 报错，左值
-                    printf("Error type 6 at line %d:  The left-hand side of an assignment must be a variable.\n", node->lineno);
+                    printf("Error type 6  at line %d:  The left-hand side of an assignment must be a variable.\n", node->lineno);
                 }
             }
             // Exp -> Exp AND Exp
@@ -572,7 +571,7 @@ TypePointer Exp(TreeNode node, Stack *stack)
                 else if (!is_equal(p1, p2))
                 {
                     // 报错，类型不匹配
-                    printf("Error type 7 at line %d: Type mismatched for operands.",node->lineno);
+                    printf("Error type 7  at line %d: Type mismatched for operands.",node->lineno);
                 }
                 else
                 {
@@ -669,7 +668,7 @@ TypePointer Exp(TreeNode node, Stack *stack)
         if (!p1 || (p1->kind != INT_TYPE && p1->kind != FLOAT_TYPE))
         {
             // 报错，数组，结构体运算
-            printf("Error type 7 at Line %d: %s.\n", t->lineno, "Type mismatched for operands");
+            printf("Error type 7  at Line %d: %s.\n", t->lineno, "Type mismatched for operands");
         }
         else
         {
@@ -692,7 +691,7 @@ TypePointer Exp(TreeNode node, Stack *stack)
         if (funcInfo == NULL)
         {
             char msg[100] = {0};
-            printf("Error type 2 at Line %d: Undefined function %s.\n", t->lineno, t->value_string);
+            printf("Error type 2  at Line %d: Undefined function %s.\n", t->lineno, t->value_string);
             return NULL;
         }
         // Exp -> ID LP Args RP
@@ -714,7 +713,7 @@ TypePointer Exp(TreeNode node, Stack *stack)
         Item tp = stack_search_item(stack, t->value_string);
         if (tp == NULL || isStructDef(tp))
         { // 也不能是函数定义
-            printf("Error type 1 at Line %d:  Undefined variable \"%s\".\n", t->lineno, t->value_string);
+            printf("Error type 1  at Line %d:  Undefined variable \"%s\".\n", t->lineno, t->value_string);
             return NULL;
         }
         else

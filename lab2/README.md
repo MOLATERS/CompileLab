@@ -29,5 +29,6 @@ WSL 版本： 2.1.5.0
 
 ## 实验亮点
 
-![alt text](image.png)
+![alt text](tree.png)
+
 
