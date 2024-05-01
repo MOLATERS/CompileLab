@@ -11,7 +11,8 @@
             "compilerPath": "/usr/bin/gcc",
             "compilerArgs": [
                 "-lfl"
-            ]
+            ],
+            "configurationProvider": "ms-vscode.makefile-tools"
         }
     ],
     "version": 4
