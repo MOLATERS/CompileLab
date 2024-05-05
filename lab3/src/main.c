@@ -1,7 +1,7 @@
 #include "parser.h"
 #include "sematic.h"
+#include "inter.h"
 #include "stdio.h"
-#include "stdlib.h"
 
 int synError = 0;
 int lexError = 0;
