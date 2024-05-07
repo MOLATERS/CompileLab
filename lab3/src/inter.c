@@ -2,6 +2,7 @@
 
 int interError = 0;
 pInterCodeList interCodeList;
+static Field table;
 
 // Operand func
 pOperand newOperand(int kind, ...) {
@@ -508,7 +509,7 @@ pOperand newTemp() {
     char tName[10] = {0};
     sprintf(tName, "t%d", interCodeList->tempVarNum);
     interCodeList->tempVarNum++;
-    pOperand temp = newOperand(OP_VARIABLE, newString(tName));
+    pOperand temp = newOperand(OP_VARIABLE, strdup(tName));
     return temp;
 }
 
@@ -516,7 +517,7 @@ pOperand newLabel() {
     char lName[10] = {0};
     sprintf(lName, "label%d", interCodeList->labelNum);
     interCodeList->labelNum++;
-    pOperand temp = newOperand(OP_LABEL, newString(lName));
+    pOperand temp = newOperand(OP_LABEL, strdup(lName));
     return temp;
 }
 
@@ -654,7 +655,6 @@ void translateExtDef(TreeNode node) {
     // ExtDef -> Specifier ExtDecList SEMI
     //         | Specifier SEMI
     //         | Specifier FunDec CompSt
-
     // 因为没有全局变量使用，
     // ExtDecList不涉及中间代码生成，类型声明也不涉及，所以只需要处理FunDec和CompSt
     if (!strcmp(node->child->brother->name, "FunDec")) {
@@ -669,17 +669,17 @@ void translateFunDec(TreeNode node) {
     // FunDec -> ID LP VarList RP
     //         | ID LP RP
     genInterCode(IR_FUNCTION,
-                 newOperand(EntrySearch, newString(node->child->value_string)));
+                 newOperand(EntrySearch, strdup(node->child->value_string)));
     // pInterCodes func = newInterCodes(newInterCode(
-    //     IR_FUNCTION, newOperand(OP_FUNCTION, newString(node->child->val))));
+    //     IR_FUNCTION, newOperand(OP_FUNCTION, strdup(node->child->val))));
     // addInterCode(interCodeList, func);
 
-    Item funcItem = EntrySearch(table, node->child->value_string);
+    Item funcItem = EntrySearch(table,node->child->value_string);
     Field temp = funcItem->field->type->detail.func.argv;
     while (temp) {
-        genInterCode(IR_PARAM, newOperand(OP_VARIABLE, newString(temp->name)));
+        genInterCode(IR_PARAM, newOperand(OP_VARIABLE, strdup(temp->name)));
         // pInterCodes arg = newInterCodes(newInterCode(
-        //     IR_PARAM, newOperand(OP_VARIABLE, newString(temp->name))));
+        //     IR_PARAM, newOperand(OP_VARIABLE, strdup(temp->name))));
         // addInterCode(interCodeList, arg);
         temp = temp->next;
     }
@@ -736,7 +736,6 @@ void translateDec(TreeNode node) {
     if (interError) return;
     // Dec -> VarDec
     //      | VarDec ASSIGNOP Exp
-
     // Dec -> VarDec
     if (node->child->brother == NULL) {
         translateVarDec(node->child, NULL);
@@ -750,40 +749,34 @@ void translateDec(TreeNode node) {
         genInterCode(IR_ASSIGN, t1, t2);
     }
 }
-
 void translateVarDec(TreeNode node, pOperand place) {
     assert(node != NULL);
     if (interError) return;
     // VarDec -> ID
     //         | VarDec LB INT RB
-
     if (!strcmp(node->child->name, "ID")) {
-        Item temp = searchTableItem(table, node->child->val);
+        Item temp = EntrySearch(table, node->child->value_string);
         TypePointer type = temp->field->type;
-        if (type->kind == BASIC) {
+        if (type->kind == INT_TYPE || type->kind == FLOAT_TYPE) {
             if (place) {
-                interCodeLiINT_TYPE || type->kind == FLOAT_TYPE->tempVarNum--; setOperand(place, OP_VARIABLE,
-                           (void_ARRAY_TYPE*)newString(temp->field->name)); deta.type
-        } else if (type->kindSTRUCT_TYPE) {
+                interCodeList->tempVarNum--;
+                setOperand(place, OP_VARIABLE, (void*)strdup(temp->field->name));
+            }
+        } else if (type->kind == ARRAY_TYPE) {
             // 不需要完成高维数组情况
-            if (type->u.array.elem->kind == ARRAY) {
-                interError = TRUE;
+            if (type->detail.array.type->kind == ARRAY_TYPE) {
+                interError = 1;
                 printf(
                     "Cannot translate: Code containsvariables of "
                     "multi-dimensional array type or parameters of array "
                     "type.\n");
                 return;
             } else {
-                genInterCode(
-                    IR_DEC,
-                    newOperand(OP_VARIABLE, newString(temp->field->name)),
-                    getSize(type));
+                genInterCode( IR_DEC, newOperand(OP_VARIABLE, strdup(temp->field->name)), getSize(type));
             }
-        } else if (type->kind == STRUCTURE) {
+        } else if (type->kind == STRUCT_TYPE) {
             // 3.1选做
-            genInterCode(IR_DEC,
-                         newOperand(OP_VARIABLE, newString(temp->field->name)),
-                         getSize(type));
+            genInterCode(IR_DEC, newOperand(OP_VARIABLE, strdup(temp->field->name)), getSize(type));
         }
     } else {
         translateVarDec(node->child, place);
@@ -809,9 +802,7 @@ void translateStmt(TreeNode node) {
     //       | IF LP Exp RP Stmt
     //       | IF LP Exp RP Stmt ELSE Stmt
     //       | WHILE LP Exp RP Stmt
-
     // Stmt -> Exp SEMI
-
     if (!strcmp(node->child->name, "Exp")) {
         translateExp(node->child, NULL);
     }
@@ -888,7 +879,6 @@ void translateExp(TreeNode node, pOperand place) {
     //      | ID
     //      | INT
     //      | FLOAT
-
     // Exp -> LP Exp RP
     if (!strcmp(node->child->name, "LP"))
         translateExp(node->child->brother, place);
@@ -955,7 +945,7 @@ void translateExp(TreeNode node, pOperand place) {
                 if (node->child->child->brother &&
                     !strcmp(node->child->child->brother, "LB")) {
                     //多维数组，报错
-                    interError = TRUE;
+                    interError = 1;
                     printf(
                         "Cannot translate: Code containsvariables of "
                         "multi-dimensional array type or parameters of array "
@@ -972,10 +962,10 @@ void translateExp(TreeNode node, pOperand place) {
                     pOperand target;
                     // 根据假设，Exp1只会展开为 Exp DOT ID 或 ID
                     // 我们让前一种情况吧ID作为name回填进place返回到这里的base处，在语义分析时将结构体变量也填进表（因为假设无重名），这样两种情况都可以查表得到。
-                    Item item = searchTableItem(table, base->u.name);
-                    assert(item->field->type->kind == ARRAY);
+                    Item item = EntrySearch(table, base->u.name);
+                    assert(item->field->type->kind == ARRAY_TYPE);
                     width = newOperand(
-                        OP_CONSTANT, getSize(item->field->type->u.array.elem));
+                        OP_CONSTANT, getSize(item->field->type->detail.array.type));
                     genInterCode(IR_MUL, offset, idx, width);
                     // 如果是ID[Exp],
                     // 则需要对ID取址，如果前面是结构体内访问，则会返回一个地址类型，不需要再取址
@@ -1009,35 +999,35 @@ void translateExp(TreeNode node, pOperand place) {
                 }
 
                 pOperand id = newOperand(
-                    OP_VARIABLE, newString(node->child->brother->brother->val));
+                    OP_VARIABLE, strdup(node->child->brother->brother->value_string));
                 int offset = 0;
                 Item item = EntrySearch(table, temp->u.name);
                 //结构体数组，temp是临时变量，查不到表，需要用处理数组时候记录下的数组名老查表
                 if (item == NULL) {
-                    item = searchTableItem(table, interCodeList->lastArrayName);
+                    item = EntrySearch(table, interCodeList->lastArrayName);
                 }
 
                 Field tmp;
                 // 结构体数组 eg: a[5].b
-                if (item->field->type->kind == ARRAY) {
-                    tmp = item->field->type->u.array.elem->u.structure.field;
+                if (item->field->type->kind == ARRAY_TYPE) {
+                    tmp = item->field->type->detail.array.type->detail.func.argv;
                 }
                 // 一般结构体
                 else {
-                    tmp = item->field->type->u.structure.field;
+                    tmp = item->field->type->detail.stuc.field;
                 }
                 // 遍历获得offset
                 while (tmp) {
                     if (!strcmp(tmp->name, id->u.name)) break;
                     offset += getSize(tmp->type);
-                    tmp = tmp->tail;
+                    tmp = tmp->next;
                 }
 
                 pOperand tOffset = newOperand(OP_CONSTANT, offset);
                 if (place) {
                     genInterCode(IR_ADD, place, target, tOffset);
                     // 为了处理结构体里的数组把id名通过place回传给上层
-                    setOperand(place, OP_ADDRESS, (void*)newString(id->u.name));
+                    setOperand(place, OP_ADDRESS, (void*)strdup(id->u.name));
                     // place->isAddr = TRUE;
                 }
             }
@@ -1051,21 +1041,11 @@ void translateExp(TreeNode node, pOperand place) {
         pOperand zero = newOperand(OP_CONSTANT, 0);
         genInterCode(IR_SUB, place, zero, t1);
     }
-    // // Exp -> NOT Exp
-    // else if (!strcmp(node->child->name, "NOT")) {
-    //     pOperand label1 = newLabel();
-    //     pOperand label2 = newLabel();
-    //     pOperand true_num = newOperand(OP_CONSTANT, 1);
-    //     pOperand false_num = newOperand(OP_CONSTANT, 0);
-    //     genInterCode(IR_ASSIGN, place, false_num);
-    //     translateCond(node, label1, label2);
-    //     genInterCode(IR_LABEL, label1);
-    //     genInterCode(IR_ASSIGN, place, true_num);
-    // }
+    // Exp -> NOT Exp
     // Exp -> ID LP Args RP
     //		| ID LP RP
     else if (!strcmp(node->child->name, "ID") && node->child->brother) {
-        pOperand funcTemp = newOperand(OP_FUNCTION, newString(node->child->value_string));
+        pOperand funcTemp = newOperand(OP_FUNCTION, strdup(node->child->value_string));
         // Exp -> ID LP Args RP
         if (!strcmp(node->child->brother->brother->name, "Args")) {
             pArgList argList = newArgList();
@@ -1077,7 +1057,6 @@ void translateExp(TreeNode node, pOperand place) {
                 while (argTemp) {
                     if (argTemp->op == OP_VARIABLE) {
                         Item item = EntrySearch(table, argTemp->op->u.name);
-
                         // 结构体作为参数需要传址
                         if (item && item->field->type->kind == STRUCT_TYPE) {
                             pOperand varTemp = newTemp();
@@ -1118,33 +1097,21 @@ void translateExp(TreeNode node, pOperand place) {
     }
     // Exp -> ID
     else if (!strcmp(node->child->name, "ID")) {
-        Item item = searchTableItem(table, node->child->val);
+        Item item = EntrySearch(table, node->child->value_string);
         // 根据讲义，因为结构体不允许赋值，结构体做形参时是传址的方式
         interCodeList->tempVarNum--;
-        if (item->field->isArg && item->field->type->kind == STRUCTURE) {
-            setOperand(place, OP_ADDRESS, (void*)newString(node->child->val));
-            // place->isAddr = TRUE;
+        if (item->field->type->kind == STRUCT_TYPE) {
+            setOperand(place, OP_ADDRESS, (void*)strdup(node->child->value_string));
         }
         // 非结构体参数情况都当做变量处理
         else {
-            setOperand(place, OP_VARIABLE, (void*)newString(node->child->val));
+            setOperand(place, OP_VARIABLE, (void*)strdup(node->child->value_string));
         }
-
-        // pOperand t1 = newOperand(OP_VARIABLE, id_name->field->name);
-        // genInterCode(IR_ASSIGN, place, t1);
     } else {
-        // // Exp -> FLOAT
-        // 无浮点数常数
-        // if (!strcmp(node->child->name, "FLOAT")) {
-        //     pOperand t1 = newOperand(OP_CONSTANT, node->child->val);
-        //     genInterCode(IR_ASSIGN, place, t1);
-        // }
-
+        // Exp -> FLOAT
         // Exp -> INT
         interCodeList->tempVarNum--;
-        setOperand(place, OP_CONSTANT, (void*)atoi(node->child->val));
-        // pOperand t1 = newOperand(OP_CONSTANT, node->child->val);
-        // genInterCode(IR_ASSIGN, place, t1);
+        setOperand(place, OP_CONSTANT, node->child->value_int);
     }
 }
 
@@ -1155,7 +1122,6 @@ void translateCond(TreeNode node, pOperand labelTrue, pOperand labelFalse) {
     //      | Exp OR Exp
     //      | Exp RELOP Exp
     //      | NOT Exp
-
     // Exp -> NOT Exp
     if (!strcmp(node->child->name, "NOT")) {
         translateCond(node->child->brother, labelFalse, labelTrue);
@@ -1168,7 +1134,7 @@ void translateCond(TreeNode node, pOperand labelTrue, pOperand labelFalse) {
         translateExp(node->child->brother->brother, t2);
 
         pOperand relop =
-            newOperand(OP_RELOP, newString(node->child->brother->val));
+            newOperand(OP_RELOP, strdup(node->child->brother->value_string));
 
         if (t1->kind == OP_ADDRESS) {
             pOperand temp = newTemp();
@@ -1203,7 +1169,7 @@ void translateCond(TreeNode node, pOperand labelTrue, pOperand labelFalse) {
         pOperand t1 = newTemp();
         translateExp(node, t1);
         pOperand t2 = newOperand(OP_CONSTANT, 0);
-        pOperand relop = newOperand(OP_RELOP, newString("!="));
+        pOperand relop = newOperand(OP_RELOP, strdup("!="));
 
         if (t1->kind == OP_ADDRESS) {
             pOperand temp = newTemp();
@@ -1227,9 +1193,9 @@ void translateArgs(TreeNode node, pArgList argList) {
     translateExp(node->child, temp->op);
 
     if (temp->op->kind == OP_VARIABLE) {
-        Item item = searchTableItem(table, temp->op->u.name);
-        if (item && item->field->type->kind == ARRAY) {
-            interError = TRUE;
+        Item item = EntrySearch(table, temp->op->u.name);
+        if (item && item->field->type->kind == ARRAY_TYPE) {
+            interError = 1;
             printf(
                 "Cannot translate: Code containsvariables of "
                 "multi-dimensional array type or parameters of array "

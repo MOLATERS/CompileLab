@@ -130,22 +130,22 @@ void addInterCode(pInterCodeList interCodeList, pInterCodes newCode);
 pOperand newTemp();
 pOperand newLabel();
 int getSize(TypePointer type);
-void genInterCodes(TNode node);
+void genInterCodes(TreeNode node);
 void genInterCode(int kind, ...);
-void translateExp(TNode node, pOperand place);
-void translateArgs(TNode node, pArgList argList);
-void translateCond(TNode node, pOperand labelTrue, pOperand labelFalse);
-void translateVarDec(TNode node, pOperand place);
-void translateDec(TNode node);
-void translateDecList(TNode node);
-void translateDef(TNode node);
-void translateDefList(TNode node);
-void translateCompSt(TNode node);
-void translateStmt(TNode node);
-void translateStmtList(TNode node);
-void translateFunDec(TNode node);
-void translateExtDef(TNode node);
-void translateExtDefList(TNode node);
+void translateExp(TreeNode node, pOperand place);
+void translateArgs(TreeNode node, pArgList argList);
+void translateCond(TreeNode node, pOperand labelTrue, pOperand labelFalse);
+void translateVarDec(TreeNode node, pOperand place);
+void translateDec(TreeNode node);
+void translateDecList(TreeNode node);
+void translateDef(TreeNode node);
+void translateDefList(TreeNode node);
+void translateCompSt(TreeNode node);
+void translateStmt(TreeNode node);
+void translateStmtList(TreeNode node);
+void translateFunDec(TreeNode node);
+void translateExtDef(TreeNode node);
+void translateExtDefList(TreeNode node);
 
 #endif
 

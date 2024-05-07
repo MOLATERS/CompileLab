@@ -8,7 +8,6 @@
 #include <string.h>
 #define TABLE_SIZE 100
 
-
 extern int yylineno;
 
 typedef enum {
@@ -33,7 +32,7 @@ typedef struct type {
     } stuc;
     struct {
       int argc;
-      struct type *argv;
+      struct field *argv;
       struct type *type;
     } func;
   } detail;

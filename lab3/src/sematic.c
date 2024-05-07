@@ -179,7 +179,7 @@ void ExtDecList(TreeNode node, TypePointer speci, Stk stack)
         }
         else
         {
-            insertItem(stack->top->table, item->field->name, item);
+            insertItem(Top(stack), item->field->name, item);
         }
         if (temp->child->brother != NULL)
         {
