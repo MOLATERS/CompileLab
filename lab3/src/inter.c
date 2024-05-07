@@ -1,6 +1,6 @@
 #include "inter.h"
 
-boolean interError = FALSE;
+int interError = 0;
 pInterCodeList interCodeList;
 
 // Operand func
@@ -520,32 +520,30 @@ pOperand newLabel() {
     return temp;
 }
 
-int getSize(pType type) {
+int getSize(TypePointer type) {
     if (type == NULL)
         return 0;
-    else if (type->kind == BASIC)
-        return 4;
-    else if (type->kind == ARRAY)
-        return type->u.array.size * getSize(type->u.array.elem);
-    else if (type->kind == STRUCTURE) {
+    else if (type->kind == INT_TYPE || type->kind == FLOAT_TYPE) return 4;
+    else if (type->kind == ARRAY_TYPE) return type->detail.array.size * getSize(type->detail.array.type);
+    else if (type->kind == STRUCT_TYPE) {
         int size = 0;
-        pFieldList temp = type->u.structure.field;
+        Field temp = type->detail.stuc.field;
         while (temp) {
             size += getSize(temp->type);
-            temp = temp->tail;
+            temp = temp->next;
         }
         return size;
     }
     return 0;
 }
 
-void genInterCodes(TNode node) {
+void genInterCodes(TreeNode node) {
     if (node == NULL) return;
     if (!strcmp(node->name, "ExtDefList"))
         translateExtDefList(node);
     else {
         genInterCodes(node->child);
-        genInterCodes(node->next);
+        genInterCodes(node->brother);
     }
 }
 
@@ -641,16 +639,16 @@ void genInterCode(int kind, ...) {
             break;
     }
 }
-void translateExtDefList(TNode node) {
+void translateExtDefList(TreeNode node) {
     // ExtDefList -> ExtDef ExtDefList
     //             | e
     while (node) {
         translateExtDef(node->child);
-        node = node->child->next;
+        node = node->child->brother;
     }
 }
 
-void translateExtDef(TNode node) {
+void translateExtDef(TreeNode node) {
     assert(node != NULL);
     if (interError) return;
     // ExtDef -> Specifier ExtDecList SEMI
@@ -659,39 +657,39 @@ void translateExtDef(TNode node) {
 
     // 因为没有全局变量使用，
     // ExtDecList不涉及中间代码生成，类型声明也不涉及，所以只需要处理FunDec和CompSt
-    if (!strcmp(node->child->next->name, "FunDec")) {
-        translateFunDec(node->child->next);
-        translateCompSt(node->child->next->next);
+    if (!strcmp(node->child->brother->name, "FunDec")) {
+        translateFunDec(node->child->brother);
+        translateCompSt(node->child->brother->brother);
     }
 }
 
-void translateFunDec(TNode node) {
+void translateFunDec(TreeNode node) {
     assert(node != NULL);
     if (interError) return;
     // FunDec -> ID LP VarList RP
     //         | ID LP RP
     genInterCode(IR_FUNCTION,
-                 newOperand(OP_FUNCTION, newString(node->child->val)));
+                 newOperand(EntrySearch, newString(node->child->value_string)));
     // pInterCodes func = newInterCodes(newInterCode(
     //     IR_FUNCTION, newOperand(OP_FUNCTION, newString(node->child->val))));
     // addInterCode(interCodeList, func);
 
-    pItem funcItem = searchTableItem(table, node->child->val);
-    pFieldList temp = funcItem->field->type->u.function.argv;
+    Item funcItem = EntrySearch(table, node->child->value_string);
+    Field temp = funcItem->field->type->detail.func.argv;
     while (temp) {
         genInterCode(IR_PARAM, newOperand(OP_VARIABLE, newString(temp->name)));
         // pInterCodes arg = newInterCodes(newInterCode(
         //     IR_PARAM, newOperand(OP_VARIABLE, newString(temp->name))));
         // addInterCode(interCodeList, arg);
-        temp = temp->tail;
+        temp = temp->next;
     }
 }
 
-void translateCompSt(TNode node) {
+void translateCompSt(TreeNode node) {
     assert(node != NULL);
     if (interError) return;
     // CompSt -> LC DefList StmtList RC
-    TNode temp = node->child->brother;
+    TreeNode temp = node->child->brother;
     if (!strcmp(temp->name, "DefList")) {
         translateDefList(temp);
         temp = temp->brother;
@@ -701,7 +699,7 @@ void translateCompSt(TNode node) {
     }
 }
 
-void translateDefList(TNode node) {
+void translateDefList(TreeNode node) {
     if (interError) return;
     // DefList -> Def DefList
     //          | e
@@ -711,19 +709,19 @@ void translateDefList(TNode node) {
     }
 }
 
-void translateDef(TNode node) {
+void translateDef(TreeNode node) {
     assert(node != NULL);
     if (interError) return;
     // Def -> Specifier DecList SEMI
     translateDecList(node->child->brother);
 }
 
-void translateDecList(TNode node) {
+void translateDecList(TreeNode node) {
     assert(node != NULL);
     if (interError) return;
     // DecList -> Dec
     //          | Dec COMMA DecList
-    TNode temp = node;
+    TreeNode temp = node;
     while (temp) {
         translateDec(temp->child);
         if (temp->child->brother)
@@ -733,7 +731,7 @@ void translateDecList(TNode node) {
     }
 }
 
-void translateDec(TNode node) {
+void translateDec(TreeNode node) {
     assert(node != NULL);
     if (interError) return;
     // Dec -> VarDec
@@ -753,22 +751,20 @@ void translateDec(TNode node) {
     }
 }
 
-void translateVarDec(TNode node, pOperand place) {
+void translateVarDec(TreeNode node, pOperand place) {
     assert(node != NULL);
     if (interError) return;
     // VarDec -> ID
     //         | VarDec LB INT RB
 
     if (!strcmp(node->child->name, "ID")) {
-        pItem temp = searchTableItem(table, node->child->val);
-        pType type = temp->field->type;
+        Item temp = searchTableItem(table, node->child->val);
+        TypePointer type = temp->field->type;
         if (type->kind == BASIC) {
             if (place) {
-                interCodeList->tempVarNum--;
-                setOperand(place, OP_VARIABLE,
-                           (void*)newString(temp->field->name));
-            }
-        } else if (type->kind == ARRAY) {
+                interCodeLiINT_TYPE || type->kind == FLOAT_TYPE->tempVarNum--; setOperand(place, OP_VARIABLE,
+                           (void_ARRAY_TYPE*)newString(temp->field->name)); deta.type
+        } else if (type->kindSTRUCT_TYPE) {
             // 不需要完成高维数组情况
             if (type->u.array.elem->kind == ARRAY) {
                 interError = TRUE;
@@ -794,7 +790,7 @@ void translateVarDec(TNode node, pOperand place) {
     }
 }
 
-void translateStmtList(TNode node) {
+void translateStmtList(TreeNode node) {
     if (interError) return;
     // StmtList -> Stmt StmtList
     //           | e
@@ -804,7 +800,7 @@ void translateStmtList(TNode node) {
     }
 }
 
-void translateStmt(TNode node) {
+void translateStmt(TreeNode node) {
     assert(node != NULL);
     if (interError) return;
     // Stmt -> Exp SEMI
@@ -834,8 +830,8 @@ void translateStmt(TNode node) {
 
     // Stmt -> IF LP Exp RP Stmt
     else if (!strcmp(node->child->name, "IF")) {
-        TNode exp = node->child->brother->brother;
-        TNode stmt = exp->brother->brother;
+        TreeNode exp = node->child->brother->brother;
+        TreeNode stmt = exp->brother->brother;
         pOperand label1 = newLabel();
         pOperand label2 = newLabel();
 
@@ -871,7 +867,7 @@ void translateStmt(TNode node) {
     }
 }
 
-void translateExp(TNode node, pOperand place) {
+void translateExp(TreeNode node, pOperand place) {
     assert(node != NULL);
     if (interError) return;
     // Exp -> Exp ASSIGNOP Exp
@@ -976,7 +972,7 @@ void translateExp(TNode node, pOperand place) {
                     pOperand target;
                     // 根据假设，Exp1只会展开为 Exp DOT ID 或 ID
                     // 我们让前一种情况吧ID作为name回填进place返回到这里的base处，在语义分析时将结构体变量也填进表（因为假设无重名），这样两种情况都可以查表得到。
-                    pItem item = searchTableItem(table, base->u.name);
+                    Item item = searchTableItem(table, base->u.name);
                     assert(item->field->type->kind == ARRAY);
                     width = newOperand(
                         OP_CONSTANT, getSize(item->field->type->u.array.elem));
@@ -1015,13 +1011,13 @@ void translateExp(TNode node, pOperand place) {
                 pOperand id = newOperand(
                     OP_VARIABLE, newString(node->child->brother->brother->val));
                 int offset = 0;
-                pItem item = searchTableItem(table, temp->u.name);
+                Item item = EntrySearch(table, temp->u.name);
                 //结构体数组，temp是临时变量，查不到表，需要用处理数组时候记录下的数组名老查表
                 if (item == NULL) {
                     item = searchTableItem(table, interCodeList->lastArrayName);
                 }
 
-                pFieldList tmp;
+                Field tmp;
                 // 结构体数组 eg: a[5].b
                 if (item->field->type->kind == ARRAY) {
                     tmp = item->field->type->u.array.elem->u.structure.field;
@@ -1051,7 +1047,7 @@ void translateExp(TNode node, pOperand place) {
     // Exp -> MINUS Exp
     else if (!strcmp(node->child->name, "MINUS")) {
         pOperand t1 = newTemp();
-        translateExp(node->child->next, t1);
+        translateExp(node->child->brother, t1);
         pOperand zero = newOperand(OP_CONSTANT, 0);
         genInterCode(IR_SUB, place, zero, t1);
     }
@@ -1068,24 +1064,22 @@ void translateExp(TNode node, pOperand place) {
     // }
     // Exp -> ID LP Args RP
     //		| ID LP RP
-    else if (!strcmp(node->child->name, "ID") && node->child->next) {
-        pOperand funcTemp =
-            newOperand(OP_FUNCTION, newString(node->child->val));
+    else if (!strcmp(node->child->name, "ID") && node->child->brother) {
+        pOperand funcTemp = newOperand(OP_FUNCTION, newString(node->child->value_string));
         // Exp -> ID LP Args RP
-        if (!strcmp(node->child->next->next->name, "Args")) {
+        if (!strcmp(node->child->brother->brother->name, "Args")) {
             pArgList argList = newArgList();
-            translateArgs(node->child->next->next, argList);
-            if (!strcmp(node->child->val, "write")) {
+            translateArgs(node->child->brother->brother, argList);
+            if (!strcmp(node->child->value_string, "write")) {
                 genInterCode(IR_WRITE, argList->head->op);
             } else {
                 pArg argTemp = argList->head;
                 while (argTemp) {
                     if (argTemp->op == OP_VARIABLE) {
-                        pItem item =
-                            searchTableItem(table, argTemp->op->u.name);
+                        Item item = EntrySearch(table, argTemp->op->u.name);
 
                         // 结构体作为参数需要传址
-                        if (item && item->field->type->kind == STRUCTURE) {
+                        if (item && item->field->type->kind == STRUCT_TYPE) {
                             pOperand varTemp = newTemp();
                             genInterCode(IR_GET_ADDR, varTemp, argTemp->op);
                             pOperand varTempCopy =
@@ -1110,7 +1104,7 @@ void translateExp(TNode node, pOperand place) {
         }
         // Exp -> ID LP RP
         else {
-            if (!strcmp(node->child->val, "read")) {
+            if (!strcmp(node->child->value_string, "read")) {
                 genInterCode(IR_READ, place);
             } else {
                 if (place) {
@@ -1124,7 +1118,7 @@ void translateExp(TNode node, pOperand place) {
     }
     // Exp -> ID
     else if (!strcmp(node->child->name, "ID")) {
-        pItem item = searchTableItem(table, node->child->val);
+        Item item = searchTableItem(table, node->child->val);
         // 根据讲义，因为结构体不允许赋值，结构体做形参时是传址的方式
         interCodeList->tempVarNum--;
         if (item->field->isArg && item->field->type->kind == STRUCTURE) {
@@ -1154,7 +1148,7 @@ void translateExp(TNode node, pOperand place) {
     }
 }
 
-void translateCond(TNode node, pOperand labelTrue, pOperand labelFalse) {
+void translateCond(TreeNode node, pOperand labelTrue, pOperand labelFalse) {
     assert(node != NULL);
     if (interError) return;
     // Exp -> Exp AND Exp
@@ -1164,17 +1158,17 @@ void translateCond(TNode node, pOperand labelTrue, pOperand labelFalse) {
 
     // Exp -> NOT Exp
     if (!strcmp(node->child->name, "NOT")) {
-        translateCond(node->child->next, labelFalse, labelTrue);
+        translateCond(node->child->brother, labelFalse, labelTrue);
     }
     // Exp -> Exp RELOP Exp
-    else if (!strcmp(node->child->next->name, "RELOP")) {
+    else if (!strcmp(node->child->brother->name, "RELOP")) {
         pOperand t1 = newTemp();
         pOperand t2 = newTemp();
         translateExp(node->child, t1);
-        translateExp(node->child->next->next, t2);
+        translateExp(node->child->brother->brother, t2);
 
         pOperand relop =
-            newOperand(OP_RELOP, newString(node->child->next->val));
+            newOperand(OP_RELOP, newString(node->child->brother->val));
 
         if (t1->kind == OP_ADDRESS) {
             pOperand temp = newTemp();
@@ -1191,18 +1185,18 @@ void translateCond(TNode node, pOperand labelTrue, pOperand labelFalse) {
         genInterCode(IR_GOTO, labelFalse);
     }
     // Exp -> Exp AND Exp
-    else if (!strcmp(node->child->next->name, "AND")) {
+    else if (!strcmp(node->child->brother->name, "AND")) {
         pOperand label1 = newLabel();
         translateCond(node->child, label1, labelFalse);
         genInterCode(IR_LABEL, label1);
-        translateCond(node->child->next->next, labelTrue, labelFalse);
+        translateCond(node->child->brother->brother, labelTrue, labelFalse);
     }
     // Exp -> Exp OR Exp
-    else if (!strcmp(node->child->next->name, "OR")) {
+    else if (!strcmp(node->child->brother->name, "OR")) {
         pOperand label1 = newLabel();
         translateCond(node->child, labelTrue, label1);
         genInterCode(IR_LABEL, label1);
-        translateCond(node->child->next->next, labelTrue, labelFalse);
+        translateCond(node->child->brother->brother, labelTrue, labelFalse);
     }
     // other cases
     else {
@@ -1221,7 +1215,7 @@ void translateCond(TNode node, pOperand labelTrue, pOperand labelFalse) {
     }
 }
 
-void translateArgs(TNode node, pArgList argList) {
+void translateArgs(TreeNode node, pArgList argList) {
     assert(node != NULL);
     assert(argList != NULL);
     if (interError) return;
@@ -1233,7 +1227,7 @@ void translateArgs(TNode node, pArgList argList) {
     translateExp(node->child, temp->op);
 
     if (temp->op->kind == OP_VARIABLE) {
-        pItem item = searchTableItem(table, temp->op->u.name);
+        Item item = searchTableItem(table, temp->op->u.name);
         if (item && item->field->type->kind == ARRAY) {
             interError = TRUE;
             printf(
@@ -1246,8 +1240,8 @@ void translateArgs(TNode node, pArgList argList) {
     addArg(argList, temp);
 
     // Args -> Exp COMMA Args
-    if (node->child->next != NULL) {
-        translateArgs(node->child->next->next, argList);
+    if (node->child->brother != NULL) {
+        translateArgs(node->child->brother->brother, argList);
     }
 }
 

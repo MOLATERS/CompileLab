@@ -1,7 +1,7 @@
 #ifndef INTER_H
 #define INTER_H
 #include "methods.h"
-#include "semantic.h"
+#include "sematic.h"
 #include "parser.h"
 
 typedef struct _operand* pOperand;
@@ -96,7 +96,7 @@ typedef struct _interCodeList {
     int labelNum;
 } InterCodeList;
 
-extern boolean interError;
+extern int interError;
 extern pInterCodeList interCodeList;
 
 // Operand func
@@ -129,23 +129,23 @@ void addInterCode(pInterCodeList interCodeList, pInterCodes newCode);
 // traverse func
 pOperand newTemp();
 pOperand newLabel();
-int getSize(pType type);
-void genInterCodes(pNode node);
+int getSize(TypePointer type);
+void genInterCodes(TNode node);
 void genInterCode(int kind, ...);
-void translateExp(pNode node, pOperand place);
-void translateArgs(pNode node, pArgList argList);
-void translateCond(pNode node, pOperand labelTrue, pOperand labelFalse);
-void translateVarDec(pNode node, pOperand place);
-void translateDec(pNode node);
-void translateDecList(pNode node);
-void translateDef(pNode node);
-void translateDefList(pNode node);
-void translateCompSt(pNode node);
-void translateStmt(pNode node);
-void translateStmtList(pNode node);
-void translateFunDec(pNode node);
-void translateExtDef(pNode node);
-void translateExtDefList(pNode node);
+void translateExp(TNode node, pOperand place);
+void translateArgs(TNode node, pArgList argList);
+void translateCond(TNode node, pOperand labelTrue, pOperand labelFalse);
+void translateVarDec(TNode node, pOperand place);
+void translateDec(TNode node);
+void translateDecList(TNode node);
+void translateDef(TNode node);
+void translateDefList(TNode node);
+void translateCompSt(TNode node);
+void translateStmt(TNode node);
+void translateStmtList(TNode node);
+void translateFunDec(TNode node);
+void translateExtDef(TNode node);
+void translateExtDefList(TNode node);
 
 #endif
 
