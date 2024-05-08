@@ -8,27 +8,19 @@ fi
 
 echo "Program generating"
 cd src
-make parser
+make
 cd ..
 
 if [ ! -d "./output/" ];
     then mkdir output
 fi
 
-rm ./output/log
+rm "./output/*.ir"
 
-echo `date` >> ./output/log
-echo "" >> ./output/log
 cat testlist | while read line
 do 
-echo "=========================$line==========================" >> ./output/log
-echo " " >> ./output/log
-./src/parser "test/$line" &>> ./output/log
-echo " " >> ./output/log
+./src/parser "test/$line" &> ./output/$line.ir
 done
-echo " "
-cat ./output/log
-echo " "
 
 
 

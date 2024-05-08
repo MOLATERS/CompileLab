@@ -23,7 +23,6 @@ typedef struct _operand {
         int value;
         char* name;
     } u;
-    // boolean isAddr;
 } Operand;
 
 typedef struct _interCode {
@@ -48,7 +47,6 @@ typedef struct _interCode {
         IR_READ,
         IR_WRITE,
     } kind;
-
     union {
         struct {
             pOperand op;
@@ -99,11 +97,11 @@ extern pInterCodeList interCodeList;
 pOperand newOperand(int kind, ...);
 void deleteOperand(pOperand p);
 // void setOperand(pOperand p, int kind, void* val);
-void setOperand(pOperand p, int kind, ...);
+void setOperand(pOperand p, int kind, int num, ...);
 void printOp(FILE* fp, pOperand op);
 
 // InterCode func
-pInterCode newInterCode(int kind, ...);
+pInterCode newInterCode(int kind, int argc, ...);
 void deleteInterCode(pInterCode p);
 void printInterCode(FILE* fp, pInterCodeList interCodeList);
 
@@ -128,7 +126,7 @@ pOperand newTemp();
 pOperand newLabel();
 int getSize(TypePointer type);
 void genInterCodes(TreeNode node);
-void genInterCode(int kind, ...);
+void genInterCode(int kind,int argc, ...);
 void translateExp(TreeNode node, pOperand place);
 void translateArgs(TreeNode node, pArgList argList);
 void translateCond(TreeNode node, pOperand labelTrue, pOperand labelFalse);

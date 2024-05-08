@@ -26,10 +26,8 @@ int main(int argc, char** argv) {
         perror(argv[1]);
         return 1;
     }
-    FILE* code = fopen("../output/result.txt", "w");
-    if(!code){
-        return 2;
-    }
+
+    // 构建语法树
     yyrestart(f);
     yyparse();
 
@@ -47,9 +45,7 @@ int main(int argc, char** argv) {
 
     // 执行中间代码生成
     genInterCodes(root);
-    if(interError != 0){
-        printInterCode(code, interCodeList);
-    }
 
+    fclose(f);
     return 0;
 }

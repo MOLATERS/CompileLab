@@ -12,32 +12,33 @@ pOperand newOperand(int kind, ...)
     p->kind = kind;
     va_list vaList;
     assert(kind >= 0 && kind < 6);
-    va_start(vaList, 1);
+    va_start(vaList, kind);
     switch (kind)
     {
-        case OP_CONSTANT:
-            p->u.value = va_arg(vaList, int);
-            break;
-        case OP_VARIABLE:
-        case OP_ADDRESS:
-        case OP_LABEL:
-        case OP_FUNCTION:
-        case OP_RELOP:
-            p->u.name = va_arg(vaList, char*);
-            break;
+    case OP_CONSTANT:
+        p->u.value = va_arg(vaList, int);
+        break;
+    case OP_VARIABLE:
+    case OP_ADDRESS:
+    case OP_LABEL:
+    case OP_FUNCTION:
+    case OP_RELOP:
+        p->u.name = va_arg(vaList, char *);
+        break;
     }
     va_end(vaList);
     return p;
 }
 
 // InterCode func
-pInterCode newInterCode(int kind, ...)
+pInterCode newInterCode(int kind, int argc, ...)
 {
     pInterCode p = (pInterCode)malloc(sizeof(InterCode));
     assert(p != NULL);
     p->kind = kind;
     va_list vaList;
     assert(kind >= 0 && kind < 19);
+    va_start(vaList, argc);
     switch (kind)
     {
     case IR_LABEL:
@@ -48,7 +49,6 @@ pInterCode newInterCode(int kind, ...)
     case IR_PARAM:
     case IR_READ:
     case IR_WRITE:
-        va_start(vaList, 1);
         p->u.oneOp.op = va_arg(vaList, pOperand);
         break;
     case IR_ASSIGN:
@@ -56,7 +56,6 @@ pInterCode newInterCode(int kind, ...)
     case IR_READ_ADDR:
     case IR_WRITE_ADDR:
     case IR_CALL:
-        va_start(vaList, 2);
         p->u.assign.left = va_arg(vaList, pOperand);
         p->u.assign.right = va_arg(vaList, pOperand);
         break;
@@ -64,18 +63,15 @@ pInterCode newInterCode(int kind, ...)
     case IR_SUB:
     case IR_MUL:
     case IR_DIV:
-        va_start(vaList, 3);
         p->u.binOp.result = va_arg(vaList, pOperand);
         p->u.binOp.op1 = va_arg(vaList, pOperand);
         p->u.binOp.op2 = va_arg(vaList, pOperand);
         break;
     case IR_DEC:
-        va_start(vaList, 2);
         p->u.dec.op = va_arg(vaList, pOperand);
         p->u.dec.size = va_arg(vaList, int);
         break;
     case IR_IF_GOTO:
-        va_start(vaList, 4);
         p->u.ifGoto.x = va_arg(vaList, pOperand);
         p->u.ifGoto.relop = va_arg(vaList, pOperand);
         p->u.ifGoto.y = va_arg(vaList, pOperand);
@@ -84,14 +80,13 @@ pInterCode newInterCode(int kind, ...)
     return p;
 }
 
-
-void setOperand(pOperand p, int kind, ...)
+void setOperand(pOperand p, int kind, int num, ...)
 {
     va_list vaList;
     assert(p != NULL);
     assert(kind >= 0 && kind < 6);
     p->kind = kind;
-    va_start(vaList,1);
+    va_start(vaList, num);
     switch (kind)
     {
     case OP_CONSTANT:
@@ -104,7 +99,7 @@ void setOperand(pOperand p, int kind, ...)
     case OP_RELOP:
         if (p->u.name)
             free(p->u.name);
-        p->u.name = va_arg(vaList, char*);
+        p->u.name = va_arg(vaList, char *);
         break;
     }
 }
@@ -136,40 +131,26 @@ void deleteOperand(pOperand p)
 void printOp(FILE *fp, pOperand op)
 {
     assert(op != NULL);
-    if (fp == NULL)
+    switch (op->kind)
     {
-        switch (op->kind)
-        {
-        case OP_CONSTANT:
+    case OP_CONSTANT:
+        if (fp == NULL)
             printf("#%d", op->u.value);
-            break;
-        case OP_VARIABLE:
-        case OP_ADDRESS:
-        case OP_LABEL:
-        case OP_FUNCTION:
-        case OP_RELOP:
-            printf("%s", op->u.name);
-            break;
-        }
-    }
-    else
-    {
-        switch (op->kind)
-        {
-        case OP_CONSTANT:
+        else
             fprintf(fp, "#%d", op->u.value);
-            break;
-        case OP_VARIABLE:
-        case OP_ADDRESS:
-        case OP_LABEL:
-        case OP_FUNCTION:
-        case OP_RELOP:
+        break;
+    case OP_VARIABLE:
+    case OP_ADDRESS:
+    case OP_LABEL:
+    case OP_FUNCTION:
+    case OP_RELOP:
+        if (fp == NULL)
+            printf("%s", op->u.name);
+        else
             fprintf(fp, "%s", op->u.name);
-            break;
-        }
+        break;
     }
 }
-
 
 void deleteInterCode(pInterCode p)
 {
@@ -556,7 +537,6 @@ void addInterCode(pInterCodeList interCodeList, pInterCodes newCode)
 // traverse func
 pOperand newTemp()
 {
-    // printf("newTemp() tempVal:%d\n", interCodeList->tempVarNum);
     char tName[10] = {0};
     sprintf(tName, "t%d", interCodeList->tempVarNum);
     interCodeList->tempVarNum++;
@@ -599,11 +579,6 @@ void genInterCodes(TreeNode node)
 {
     // 初始化中间代码生成的表
     interCodeList = newInterCodeList();
-
-    // 初始化符号表
-    // table = initTable();
-
-
     if (node == NULL)
         return;
     if (!strcmp(node->name, "ExtDefList"))
@@ -613,9 +588,13 @@ void genInterCodes(TreeNode node)
         genInterCodes(node->child);
         genInterCodes(node->brother);
     }
+    FILE *code = fopen("../output/result.ir", "wt+");
+    printInterCode(code, interCodeList);
+    // fclose(code);
+    return;
 }
 
-void genInterCode(int kind, ...)
+void genInterCode(int kind, int argc, ...)
 {
     va_list vaList;
     pOperand temp = NULL;
@@ -633,15 +612,15 @@ void genInterCode(int kind, ...)
     case IR_PARAM:
     case IR_READ:
     case IR_WRITE:
-        va_start(vaList, 1);
+        va_start(vaList, argc);
         op1 = va_arg(vaList, pOperand);
         if (op1->kind == OP_ADDRESS)
         {
             temp = newTemp();
-            genInterCode(IR_READ_ADDR, temp, op1);
+            genInterCode(IR_READ_ADDR, 2, temp, op1);
             op1 = temp;
         }
-        newCode = newInterCodes(newInterCode(kind, op1));
+        newCode = newInterCodes(newInterCode(kind, argc, op1));
         addInterCode(interCodeList, newCode);
         break;
     case IR_ASSIGN:
@@ -649,26 +628,26 @@ void genInterCode(int kind, ...)
     case IR_READ_ADDR:
     case IR_WRITE_ADDR:
     case IR_CALL:
-        va_start(vaList, 2);
+        va_start(vaList, argc);
         op1 = va_arg(vaList, pOperand);
         op2 = va_arg(vaList, pOperand);
         if (kind == IR_ASSIGN &&
             (op1->kind == OP_ADDRESS || op2->kind == OP_ADDRESS))
         {
             if (op1->kind == OP_ADDRESS && op2->kind != OP_ADDRESS)
-                genInterCode(IR_WRITE_ADDR, op1, op2);
+                genInterCode(IR_WRITE_ADDR, argc, op1, op2);
             else if (op2->kind == OP_ADDRESS && op1->kind != OP_ADDRESS)
-                genInterCode(IR_READ_ADDR, op1, op2);
+                genInterCode(IR_READ_ADDR, argc, op1, op2);
             else
             {
                 temp = newTemp();
-                genInterCode(IR_READ_ADDR, temp, op2);
-                genInterCode(IR_WRITE_ADDR, op1, temp);
+                genInterCode(IR_READ_ADDR, argc, temp, op2);
+                genInterCode(IR_WRITE_ADDR, argc, op1, temp);
             }
         }
         else
         {
-            newCode = newInterCodes(newInterCode(kind, op1, op2));
+            newCode = newInterCodes(newInterCode(kind, 2, op1, op2));
             addInterCode(interCodeList, newCode);
         }
         break;
@@ -676,42 +655,41 @@ void genInterCode(int kind, ...)
     case IR_SUB:
     case IR_MUL:
     case IR_DIV:
-        va_start(vaList, 3);
+        va_start(vaList, argc);
         result = va_arg(vaList, pOperand);
         op1 = va_arg(vaList, pOperand);
         op2 = va_arg(vaList, pOperand);
         if (op1->kind == OP_ADDRESS)
         {
             temp = newTemp();
-            genInterCode(IR_READ_ADDR, temp, op1);
+            genInterCode(IR_READ_ADDR,2, temp, op1);
             op1 = temp;
         }
         if (op2->kind == OP_ADDRESS)
         {
             temp = newTemp();
-            genInterCode(IR_READ_ADDR, temp, op2);
+            genInterCode(IR_READ_ADDR,2, temp, op2);
             op2 = temp;
         }
-        newCode = newInterCodes(newInterCode(kind, result, op1, op2));
+        newCode = newInterCodes(newInterCode(kind,3,  result, op1, op2));
         addInterCode(interCodeList, newCode);
         break;
     case IR_DEC:
         // TODO:
-        va_start(vaList, 2);
+        va_start(vaList, argc);
         op1 = va_arg(vaList, pOperand);
         size = va_arg(vaList, int);
-        newCode = newInterCodes(newInterCode(kind, op1, size));
+        newCode = newInterCodes(newInterCode(kind,2,op1, size));
         addInterCode(interCodeList, newCode);
         break;
     case IR_IF_GOTO:
         // TODO:
-        va_start(vaList, 4);
+        va_start(vaList, argc);
         result = va_arg(vaList, pOperand);
         relop = va_arg(vaList, pOperand);
         op1 = va_arg(vaList, pOperand);
         op2 = va_arg(vaList, pOperand);
-        newCode =
-            newInterCodes(newInterCode(kind, result, relop, op1, op2));
+        newCode = newInterCodes(newInterCode(kind,4,result, relop, op1, op2));
         addInterCode(interCodeList, newCode);
         break;
     }
@@ -752,7 +730,7 @@ void translateFunDec(TreeNode node)
         return;
     // FunDec -> ID LP VarList RP
     //         | ID LP RP
-    genInterCode(IR_FUNCTION, newOperand(OP_FUNCTION, strdup(node->child->value_string)));
+    genInterCode(IR_FUNCTION,2, newOperand(OP_FUNCTION, strdup(node->child->value_string)));
     // pInterCodes func = newInterCodes(newInterCode(
     //     IR_FUNCTION, newOperand(OP_FUNCTION, strdup(node->child->val))));
     // addInterCode(interCodeList, func);
@@ -761,7 +739,7 @@ void translateFunDec(TreeNode node)
     Field temp = funcItem->field->type->detail.func.argv;
     while (temp)
     {
-        genInterCode(IR_PARAM, newOperand(OP_VARIABLE, strdup(temp->name)));
+        genInterCode(IR_PARAM,2, newOperand(OP_VARIABLE, strdup(temp->name)));
         // pInterCodes arg = newInterCodes(newInterCode(
         //     IR_PARAM, newOperand(OP_VARIABLE, strdup(temp->name))));
         // addInterCode(interCodeList, arg);
@@ -846,7 +824,7 @@ void translateDec(TreeNode node)
         translateVarDec(node->child, t1);
         pOperand t2 = newTemp();
         translateExp(node->child->brother->brother, t2);
-        genInterCode(IR_ASSIGN, t1, t2);
+        genInterCode(IR_ASSIGN,2, t1, t2);
     }
 }
 void translateVarDec(TreeNode node, pOperand place)
@@ -858,14 +836,14 @@ void translateVarDec(TreeNode node, pOperand place)
     //         | VarDec LB INT RB
     if (!strcmp(node->child->name, "ID"))
     {
-        Item temp = stack_search_item( node->child->value_string);
+        Item temp = stack_search_item(node->child->value_string);
         TypePointer type = temp->field->type;
         if (type->kind == INT_TYPE || type->kind == FLOAT_TYPE)
         {
             if (place)
             {
                 interCodeList->tempVarNum--;
-                setOperand(place, OP_VARIABLE, (void *)strdup(temp->field->name));
+                setOperand(place, OP_VARIABLE,1, (void *)strdup(temp->field->name));
             }
         }
         else if (type->kind == ARRAY_TYPE)
@@ -882,13 +860,13 @@ void translateVarDec(TreeNode node, pOperand place)
             }
             else
             {
-                genInterCode(IR_DEC, newOperand(OP_VARIABLE, strdup(temp->field->name)), getSize(type));
+                genInterCode(IR_DEC,2, newOperand(OP_VARIABLE, strdup(temp->field->name)), getSize(type));
             }
         }
         else if (type->kind == STRUCT_TYPE)
         {
             // 3.1选做
-            genInterCode(IR_DEC, newOperand(OP_VARIABLE, strdup(temp->field->name)), getSize(type));
+            genInterCode(IR_DEC,2, newOperand(OP_VARIABLE, strdup(temp->field->name)), getSize(type));
         }
     }
     else
@@ -938,7 +916,7 @@ void translateStmt(TreeNode node)
     {
         pOperand t1 = newTemp();
         translateExp(node->child->brother, t1);
-        genInterCode(IR_RETURN, t1);
+        genInterCode(IR_RETURN,1, t1);
     }
 
     // Stmt -> IF LP Exp RP Stmt
@@ -950,20 +928,20 @@ void translateStmt(TreeNode node)
         pOperand label2 = newLabel();
 
         translateCond(exp, label1, label2);
-        genInterCode(IR_LABEL, label1);
+        genInterCode(IR_LABEL,1, label1);
         translateStmt(stmt);
         if (stmt->brother == NULL)
         {
-            genInterCode(IR_LABEL, label2);
+            genInterCode(IR_LABEL,1, label2);
         }
         // Stmt -> IF LP Exp RP Stmt ELSE Stmt
         else
         {
             pOperand label3 = newLabel();
-            genInterCode(IR_GOTO, label3);
-            genInterCode(IR_LABEL, label2);
+            genInterCode(IR_GOTO,1, label3);
+            genInterCode(IR_LABEL,1, label2);
             translateStmt(stmt->brother->brother);
-            genInterCode(IR_LABEL, label3);
+            genInterCode(IR_LABEL,1, label3);
         }
     }
 
@@ -973,12 +951,12 @@ void translateStmt(TreeNode node)
         pOperand label1 = newLabel();
         pOperand label2 = newLabel();
         pOperand label3 = newLabel();
-        genInterCode(IR_LABEL, label1);
+        genInterCode(IR_LABEL,1, label1);
         translateCond(node->child->brother->brother, label2, label3);
-        genInterCode(IR_LABEL, label2);
+        genInterCode(IR_LABEL,1, label2);
         translateStmt(node->child->brother->brother->brother->brother);
-        genInterCode(IR_GOTO, label1);
-        genInterCode(IR_LABEL, label3);
+        genInterCode(IR_GOTO,1, label1);
+        genInterCode(IR_LABEL,1, label3);
     }
 }
 
@@ -1029,10 +1007,10 @@ void translateExp(TreeNode node, pOperand place)
                 pOperand label2 = newLabel();
                 pOperand true_num = newOperand(OP_CONSTANT, 1);
                 pOperand false_num = newOperand(OP_CONSTANT, 0);
-                genInterCode(IR_ASSIGN, place, false_num);
+                genInterCode(IR_ASSIGN,2, place, false_num);
                 translateCond(node, label1, label2);
-                genInterCode(IR_LABEL, label1);
-                genInterCode(IR_ASSIGN, place, true_num);
+                genInterCode(IR_LABEL,1, label1);
+                genInterCode(IR_ASSIGN,2, place, true_num);
             }
             else
             {
@@ -1043,7 +1021,7 @@ void translateExp(TreeNode node, pOperand place)
                     translateExp(node->child->brother->brother, t2);
                     pOperand t1 = newTemp();
                     translateExp(node->child, t1);
-                    genInterCode(IR_ASSIGN, t1, t2);
+                    genInterCode(IR_ASSIGN,2, t1, t2);
                 }
                 else
                 {
@@ -1054,22 +1032,22 @@ void translateExp(TreeNode node, pOperand place)
                     // Exp -> Exp PLUS Exp
                     if (!strcmp(node->child->brother->name, "PLUS"))
                     {
-                        genInterCode(IR_ADD, place, t1, t2);
+                        genInterCode(IR_ADD,3, place, t1, t2);
                     }
                     // Exp -> Exp MINUS Exp
                     else if (!strcmp(node->child->brother->name, "MINUS"))
                     {
-                        genInterCode(IR_SUB, place, t1, t2);
+                        genInterCode(IR_SUB,3, place, t1, t2);
                     }
                     // Exp -> Exp STAR Exp
                     else if (!strcmp(node->child->brother->name, "STAR"))
                     {
-                        genInterCode(IR_MUL, place, t1, t2);
+                        genInterCode(IR_MUL,3, place, t1, t2);
                     }
                     // Exp -> Exp DIV Exp
                     else if (!strcmp(node->child->brother->name, "DIV"))
                     {
-                        genInterCode(IR_DIV, place, t1, t2);
+                        genInterCode(IR_DIV,3, place, t1, t2);
                     }
                 }
             }
@@ -1104,25 +1082,25 @@ void translateExp(TreeNode node, pOperand place)
                     pOperand target;
                     // 根据假设，Exp1只会展开为 Exp DOT ID 或 ID
                     // 我们让前一种情况吧ID作为name回填进place返回到这里的base处，在语义分析时将结构体变量也填进表（因为假设无重名），这样两种情况都可以查表得到。
-                    Item item = stack_search_item( base->u.name);
+                    Item item = stack_search_item(base->u.name);
                     assert(item->field->type->kind == ARRAY_TYPE);
                     width = newOperand(
                         OP_CONSTANT, getSize(item->field->type->detail.array.type));
-                    genInterCode(IR_MUL, offset, idx, width);
+                    genInterCode(IR_MUL,3, offset, idx, width);
                     // 如果是ID[Exp],
                     // 则需要对ID取址，如果前面是结构体内访问，则会返回一个地址类型，不需要再取址
                     if (base->kind == OP_VARIABLE)
                     {
                         // printf("非结构体数组访问\n");
                         target = newTemp();
-                        genInterCode(IR_GET_ADDR, target, base);
+                        genInterCode(IR_GET_ADDR,3, target, base);
                     }
                     else
                     {
                         // printf("结构体数组访问\n");
                         target = base;
                     }
-                    genInterCode(IR_ADD, place, target, offset);
+                    genInterCode(IR_ADD,3, place, target, offset);
                     place->kind = OP_ADDRESS;
                     interCodeList->lastArrayName = base->u.name;
                 }
@@ -1144,17 +1122,17 @@ void translateExp(TreeNode node, pOperand place)
                 else
                 {
                     target = newTemp();
-                    genInterCode(IR_GET_ADDR, target, temp);
+                    genInterCode(IR_GET_ADDR,3, target, temp);
                 }
 
                 pOperand id = newOperand(
                     OP_VARIABLE, strdup(node->child->brother->brother->value_string));
                 int offset = 0;
-                Item item = stack_search_item( temp->u.name);
+                Item item = stack_search_item(temp->u.name);
                 // 结构体数组，temp是临时变量，查不到表，需要用处理数组时候记录下的数组名老查表
                 if (item == NULL)
                 {
-                    item = stack_search_item( interCodeList->lastArrayName);
+                    item = stack_search_item(interCodeList->lastArrayName);
                 }
 
                 Field tmp;
@@ -1180,9 +1158,9 @@ void translateExp(TreeNode node, pOperand place)
                 pOperand tOffset = newOperand(OP_CONSTANT, offset);
                 if (place)
                 {
-                    genInterCode(IR_ADD, place, target, tOffset);
+                    genInterCode(IR_ADD,3, place, target, tOffset);
                     // 为了处理结构体里的数组把id名通过place回传给上层
-                    setOperand(place, OP_ADDRESS, (void *)strdup(id->u.name));
+                    setOperand(place, OP_ADDRESS,1, (void *)strdup(id->u.name));
                     // place->isAddr = TRUE;
                 }
             }
@@ -1195,7 +1173,7 @@ void translateExp(TreeNode node, pOperand place)
         pOperand t1 = newTemp();
         translateExp(node->child->brother, t1);
         pOperand zero = newOperand(OP_CONSTANT, 0);
-        genInterCode(IR_SUB, place, zero, t1);
+        genInterCode(IR_SUB,3, place, zero, t1);
     }
     // Exp -> NOT Exp
     // Exp -> ID LP Args RP
@@ -1210,7 +1188,7 @@ void translateExp(TreeNode node, pOperand place)
             translateArgs(node->child->brother->brother, argList);
             if (!strcmp(node->child->value_string, "write"))
             {
-                genInterCode(IR_WRITE, argList->head->op);
+                genInterCode(IR_WRITE, 1,argList->head->op);
             }
             else
             {
@@ -1219,33 +1197,33 @@ void translateExp(TreeNode node, pOperand place)
                 {
                     if (argTemp->op == OP_VARIABLE)
                     {
-                        Item item = stack_search_item( argTemp->op->u.name);
+                        Item item = stack_search_item(argTemp->op->u.name);
                         // 结构体作为参数需要传址
                         if (item && item->field->type->kind == STRUCT_TYPE)
                         {
                             pOperand varTemp = newTemp();
-                            genInterCode(IR_GET_ADDR, varTemp, argTemp->op);
+                            genInterCode(IR_GET_ADDR, 2,varTemp, argTemp->op);
                             pOperand varTempCopy =
                                 newOperand(OP_ADDRESS, varTemp->u.name);
                             // varTempCopy->isAddr = TRUE;
-                            genInterCode(IR_ARG, varTempCopy);
+                            genInterCode(IR_ARG, 1,varTempCopy);
                         }
                     }
                     // 一般参数直接传值
                     else
                     {
-                        genInterCode(IR_ARG, argTemp->op);
+                        genInterCode(IR_ARG,1, argTemp->op);
                     }
                     argTemp = argTemp->next;
                 }
                 if (place)
                 {
-                    genInterCode(IR_CALL, place, funcTemp);
+                    genInterCode(IR_CALL,2, place, funcTemp);
                 }
                 else
                 {
                     pOperand temp = newTemp();
-                    genInterCode(IR_CALL, temp, funcTemp);
+                    genInterCode(IR_CALL,2, temp, funcTemp);
                 }
             }
         }
@@ -1254,18 +1232,18 @@ void translateExp(TreeNode node, pOperand place)
         {
             if (!strcmp(node->child->value_string, "read"))
             {
-                genInterCode(IR_READ, place);
+                genInterCode(IR_READ,1, place);
             }
             else
             {
                 if (place)
                 {
-                    genInterCode(IR_CALL, place, funcTemp);
+                    genInterCode(IR_CALL,2, place, funcTemp);
                 }
                 else
                 {
                     pOperand temp = newTemp();
-                    genInterCode(IR_CALL, temp, funcTemp);
+                    genInterCode(IR_CALL,2, temp, funcTemp);
                 }
             }
         }
@@ -1273,17 +1251,17 @@ void translateExp(TreeNode node, pOperand place)
     // Exp -> ID
     else if (!strcmp(node->child->name, "ID"))
     {
-        Item item = stack_search_item( node->child->value_string);
+        Item item = stack_search_item(node->child->value_string);
         // 根据讲义，因为结构体不允许赋值，结构体做形参时是传址的方式
         interCodeList->tempVarNum--;
         if (item->field->type->kind == STRUCT_TYPE)
         {
-            setOperand(place, OP_ADDRESS, (void *)strdup(node->child->value_string));
+            setOperand(place, OP_ADDRESS, 1, (void *)strdup(node->child->value_string));
         }
         // 非结构体参数情况都当做变量处理
         else
         {
-            setOperand(place, OP_VARIABLE, (void *)strdup(node->child->value_string));
+            setOperand(place, OP_VARIABLE, 1, (void *)strdup(node->child->value_string));
         }
     }
     else
@@ -1291,7 +1269,7 @@ void translateExp(TreeNode node, pOperand place)
         // Exp -> FLOAT
         // Exp -> INT
         interCodeList->tempVarNum--;
-        setOperand(place, OP_CONSTANT, node->child->value_int);
+        setOperand(place, OP_CONSTANT, 1, node->child->value_int);
     }
 }
 
@@ -1316,31 +1294,29 @@ void translateCond(TreeNode node, pOperand labelTrue, pOperand labelFalse)
         pOperand t2 = newTemp();
         translateExp(node->child, t1);
         translateExp(node->child->brother->brother, t2);
-
         pOperand relop = newOperand(OP_RELOP, strdup(node->child->brother->value_string));
 
         if (t1->kind == OP_ADDRESS)
         {
             pOperand temp = newTemp();
-            genInterCode(IR_READ_ADDR, temp, t1);
+            genInterCode(IR_READ_ADDR,2, temp, t1);
             t1 = temp;
         }
         if (t2->kind == OP_ADDRESS)
         {
             pOperand temp = newTemp();
-            genInterCode(IR_READ_ADDR, temp, t2);
+            genInterCode(IR_READ_ADDR,2, temp, t2);
             t2 = temp;
         }
-
-        genInterCode(IR_IF_GOTO, t1, relop, t2, labelTrue);
-        genInterCode(IR_GOTO, labelFalse);
+        genInterCode(IR_IF_GOTO,4, t1, relop, t2, labelTrue);
+        genInterCode(IR_GOTO,1, labelFalse);
     }
     // Exp -> Exp AND Exp
     else if (!strcmp(node->child->brother->name, "AND"))
     {
         pOperand label1 = newLabel();
         translateCond(node->child, label1, labelFalse);
-        genInterCode(IR_LABEL, label1);
+        genInterCode(IR_LABEL,1, label1);
         translateCond(node->child->brother->brother, labelTrue, labelFalse);
     }
     // Exp -> Exp OR Exp
@@ -1348,7 +1324,7 @@ void translateCond(TreeNode node, pOperand labelTrue, pOperand labelFalse)
     {
         pOperand label1 = newLabel();
         translateCond(node->child, labelTrue, label1);
-        genInterCode(IR_LABEL, label1);
+        genInterCode(IR_LABEL,1, label1);
         translateCond(node->child->brother->brother, labelTrue, labelFalse);
     }
     // other cases
@@ -1362,11 +1338,11 @@ void translateCond(TreeNode node, pOperand labelTrue, pOperand labelFalse)
         if (t1->kind == OP_ADDRESS)
         {
             pOperand temp = newTemp();
-            genInterCode(IR_READ_ADDR, temp, t1);
+            genInterCode(IR_READ_ADDR,2, temp, t1);
             t1 = temp;
         }
-        genInterCode(IR_IF_GOTO, t1, relop, t2, labelTrue);
-        genInterCode(IR_GOTO, labelFalse);
+        genInterCode(IR_IF_GOTO,4, t1, relop, t2, labelTrue);
+        genInterCode(IR_GOTO,1, labelFalse);
     }
 }
 

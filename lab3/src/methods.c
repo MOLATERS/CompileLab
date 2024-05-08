@@ -105,7 +105,6 @@ void nameFieldList(Field field, char *name)
 }
 
 Item newItem(char* name, TypePointer type){
-    printf("%s", name);
     Field field = initFieldList(strdup(name), type);
     return initItem(field);
 }

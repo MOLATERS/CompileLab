@@ -1,7 +1,7 @@
 #ifndef INTER_H
 #define INTER_H
 #include "node.h"
-#include "semantic.h"
+#include "sym.h"
 
 typedef struct _operand* pOperand;
 typedef struct _interCode* pInterCode;
@@ -11,7 +11,6 @@ typedef struct _argList* pArgList;
 typedef struct _interCodeList* pInterCodeList;
 
 typedef struct _operand {
-
     enum {
         OP_VARIABLE,
         OP_CONSTANT,
@@ -95,7 +94,7 @@ typedef struct _interCodeList {
     int labelNum;
 } InterCodeList;
 
-extern boolean interError;
+extern int interError;
 extern pInterCodeList interCodeList;
 
 // Operand func
@@ -129,20 +128,21 @@ void addInterCode(pInterCodeList interCodeList, pInterCodes newCode);
 pOperand newTemp();
 pOperand newLabel();
 int getSize(pType type);
-void genInterCodes(pNode node);
+
+void genInterCodes(pNode node,Stack* stack);
 void genInterCode(int kind, ...);
-void translateExp(pNode node, pOperand place);
-void translateArgs(pNode node, pArgList argList);
-void translateCond(pNode node, pOperand labelTrue, pOperand labelFalse);
-void translateVarDec(pNode node, pOperand place);
-void translateDec(pNode node);
-void translateDecList(pNode node);
-void translateDef(pNode node);
-void translateDefList(pNode node);
-void translateCompSt(pNode node);
-void translateStmt(pNode node);
-void translateStmtList(pNode node);
-void translateFunDec(pNode node);
-void translateExtDef(pNode node);
-void translateExtDefList(pNode node);
+void translateExp(pNode node, pOperand place,Stack* stack);
+void translateArgs(pNode node, pArgList argList,Stack* stack);
+void translateCond(pNode node, pOperand labelTrue, pOperand labelFalse,Stack* stack);
+void translateVarDec(pNode node, pOperand place,Stack* stack);
+void translateDec(pNode node,Stack* stack);
+void translateDecList(pNode node,Stack* stack);
+void translateDef(pNode node,Stack* stack);
+void translateDefList(pNode node,Stack* stack);
+void translateCompSt(pNode node,Stack* stack);
+void translateStmt(pNode node,Stack* stack);
+void translateStmtList(pNode node,Stack* stack);
+void translateFunDec(pNode node,Stack* stack);
+void translateExtDef(pNode node,Stack* stack);
+void translateExtDefList(pNode node,Stack* stack);
 #endif
