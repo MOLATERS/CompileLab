@@ -9,12 +9,12 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/src/parser",
-            "args": ["${workspaceFolder}/test/test7.cmm"],
+            "args": ["${workspaceFolder}/test/test1.cmm"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
+            "debugServerPath": "",
             "environment": [],
             "externalConsole": false,
-            "MIMode": "gdb",
             "setupCommands": [
                 {
                     "description": "为 gdb 启用整齐打印",

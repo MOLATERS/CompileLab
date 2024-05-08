@@ -1,17 +1,19 @@
-syntax=syntax.tab.h syntax.tab.c
-includefile=parser.h methods.h sematic.h inter.h syntax.tab.h
-srcfile=parser.c lex.yy.c main.c methods.c sematic.c inter.c syntax.tab.c
+syntax=syntax.tab.c syntax.tab.h
+path=../test/test12.cmm
 
 all: parser
 
-parser:${includefile} ${srcfile}   
-	gcc ${srcfile} -lfl -g -o parser
+parser: parser.c parser.h lex.yy.c ${syntax} main.c methods.h methods.c sematic.h sematic.c inter.c inter.h
+	gcc syntax.tab.c parser.c main.c methods.c sematic.c inter.c -lfl -g -o parser
 
 lex.yy.c:lexical.l
 	flex lexical.l
 
 ${syntax}:syntax.y
 	bison -d -t syntax.y
+
+test:parser ${path}
+	./parser ${path}
 
 clean:
 	rm lex.yy.c syntax.tab.* parser

@@ -81,6 +81,7 @@ TreeNode InsertLeaf(int lineno, char* name, NodeType type, char* value){
             break;
         case TOKEN_TYPE:
         case TOKEN_ID:
+        case TOKEN_OTHER:
             leaf->value_string = strdup(value);
             break;
         default:

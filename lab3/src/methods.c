@@ -1,5 +1,7 @@
 #include "methods.h"
 
+Stk stack;
+
 TypePointer copyType(TypePointer type)
 {
     if(type==NULL) return NULL;
@@ -55,7 +57,7 @@ void deleteType(TypePointer type)
     return;
 }
 
-Field initFieldList(char *name, TypePointer type)
+Field initFieldList(char* name, TypePointer type)
 {
     Field newList = (Field)malloc(sizeof(FieldList));
     assert(newList != NULL);
@@ -100,6 +102,12 @@ void nameFieldList(Field field, char *name)
         free(field->name);
     field->name = strdup(name);
     return;
+}
+
+Item newItem(char* name, TypePointer type){
+    printf("%s", name);
+    Field field = initFieldList(strdup(name), type);
+    return initItem(field);
 }
 
 Item initItem(Field field)
@@ -183,23 +191,23 @@ Stk createStack(){
     return stack;
 }
 
-void initStack(Stk stack)
+Stk initStack()
 {
     stack->top == NULL;
-    return;
+    return stack;
 }
 
-void Push(Stk stack, Table table)
+Stk Push(Table table)
 {
     SNode newNode = (SNode)malloc(sizeof(Stack));
     assert(newNode != NULL);
     newNode->table = table;
     newNode->next = stack->top;
     stack->top = newNode;
-    return;
+    return stack;
 }
 
-Table Pop(Stk stack)
+Table Pop()
 {
     if (stack->top == NULL)
         return NULL;
@@ -210,13 +218,13 @@ Table Pop(Stk stack)
     return data;
 }
 
-Table Top(Stk stack)
+Table Top()
 {
     assert(stack->top != NULL);
     return stack->top->table;
 }
 
-void deleteStack(Stk stack)
+void deleteStack()
 {
     while (stack->top != NULL)
     {
@@ -225,7 +233,7 @@ void deleteStack(Stk stack)
     return;
 }
 
-int conflict(Stack *stack, char *name)
+int conflict(char *name)
 {
     Table p = (Table)malloc(sizeof(EntryTable));
     if (p == NULL)
@@ -246,7 +254,7 @@ int conflict(Stack *stack, char *name)
     return 1;
 }
 
-Item stack_search_item(Stack *stack, char *name)
+Item stack_search_item(char *name)
 {
     SNode current = stack->top;
     while (current != NULL)

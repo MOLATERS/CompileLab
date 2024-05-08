@@ -26,7 +26,7 @@ int is_equal(TypePointer type1, TypePointer type2);
  * @param node 指向当前节点的指针。
  * @param stack 用于符号表管理的栈的指针。
  */
-void TreeScan(TreeNode node, Stk stack);
+void TreeScan(TreeNode node);
 
 /**
  * @brief 处理抽象语法树中的 ExtDef 节点。
@@ -34,7 +34,7 @@ void TreeScan(TreeNode node, Stk stack);
  * @param node 指向 ExtDef 节点的指针。
  * @param stack 用于符号表管理的栈的指针。
  */
-void ExDef(TreeNode node, Stk stack);
+void ExDef(TreeNode node);
 
 /**
  * @brief 分析抽象语法树中的 Specifier 节点。
@@ -43,7 +43,7 @@ void ExDef(TreeNode node, Stk stack);
  * @param stack 用于符号表管理的栈的指针。
  * @return TypePointer 指向类型信息的指针。
  */
-TypePointer Specifier(TreeNode node, Stk stack);
+TypePointer Specifier(TreeNode node);
 
 /**
  * @brief 分析抽象语法树中的 StructSpecifier 节点。
@@ -52,7 +52,7 @@ TypePointer Specifier(TreeNode node, Stk stack);
  * @param stack 用于符号表管理的栈的指针。
  * @return TypePointer 指向类型信息的指针。
  */
-TypePointer StructSpecifier(TreeNode node, Stk stack);
+TypePointer StructSpecifier(TreeNode node);
 
 /**
  * @brief 分析抽象语法树中的 ExtDecList 节点。
@@ -61,7 +61,7 @@ TypePointer StructSpecifier(TreeNode node, Stk stack);
  * @param speci 指向类型说明符的指针。
  * @param stack 用于符号表管理的栈的指针。
  */
-void ExtDecList(TreeNode node, TypePointer speci, Stk stack);
+void ExtDecList(TreeNode node, TypePointer speci);
 
 /**
  * @brief 分析抽象语法树中的 VarDec 节点。
@@ -79,7 +79,7 @@ Item VarDec(TreeNode node, TypePointer speci);
  * @param retype 指向返回类型的指针。
  * @param stack 用于符号表管理的栈的指针。
  */
-void FunDec(TreeNode node, TypePointer retype, Stk stack);
+void FunDec(TreeNode node, TypePointer retype);
 
 /**
  * @brief 分析抽象语法树中的 VarList 节点。
@@ -88,7 +88,7 @@ void FunDec(TreeNode node, TypePointer retype, Stk stack);
  * @param func 指向函数项目的指针。
  * @param stack 用于符号表管理的栈的指针。
  */
-void VarList(TreeNode node, Item func, Stack *stack);
+void VarList(TreeNode node, Item func);
 
 /**
  * @brief 检查项目是否表示结构定义。
@@ -112,7 +112,7 @@ int isStructDef(Item item);
  * @param structInfo 指向结构信息的指针，如果当前处于结构体定义内部，则该值为非NULL。
  * @param stack 用于符号表管理的栈的指针。
  */
-void Dec(TreeNode node, TypePointer specifier, Item structInfo, Stack *stack);
+void Dec(TreeNode node, TypePointer specifier, Item structInfo);
 
 
 /**
@@ -122,7 +122,7 @@ void Dec(TreeNode node, TypePointer specifier, Item structInfo, Stack *stack);
  * @param stack 用于符号表管理的栈的指针。
  * @return Field 指向表示参数声明的字段的指针。
  */
-Field ParamDec(TreeNode node, Stack *stack);
+Field ParamDec(TreeNode node);
 
 /**
  * @brief 分析抽象语法树中的 CompSt 节点。
@@ -131,7 +131,7 @@ Field ParamDec(TreeNode node, Stack *stack);
  * @param returnType 指向返回类型的指针。
  * @param stack 用于符号表管理的栈的指针。
  */
-void CompSt(TreeNode node, TypePointer returnType, Stack *stack);
+void CompSt(TreeNode node, TypePointer returnType);
 
 /**
  * @brief 分析
@@ -142,7 +142,7 @@ void CompSt(TreeNode node, TypePointer returnType, Stack *stack);
  * @param returnType 指向返回类型的指针。
  * @param stack 用于符号表管理的栈的指针。
  */
-void StmtList(TreeNode node, TypePointer returnType, Stack *stack);
+void StmtList(TreeNode node, TypePointer returnType);
 
 /**
  * @brief 分析抽象语法树中的 Stmt 节点。
@@ -151,7 +151,7 @@ void StmtList(TreeNode node, TypePointer returnType, Stack *stack);
  * @param returnType 指向返回类型的指针。
  * @param stack 用于符号表管理的栈的指针。
  */
-void Stmt(TreeNode node, TypePointer returnType, Stack *stack);
+void Stmt(TreeNode node, TypePointer returnType);
 
 /**
  * @brief 分析抽象语法树中的 Def 节点。
@@ -160,7 +160,7 @@ void Stmt(TreeNode node, TypePointer returnType, Stack *stack);
  * @param structInfo 指向结构信息的指针。
  * @param stack 用于符号表管理的栈的指针。
  */
-void Def(TreeNode node, Item structInfo, Stack *stack);
+void Def(TreeNode node, Item structInfo);
 
 /**
  * @brief 分析抽象语法树中的 DefList 节点。
@@ -169,7 +169,7 @@ void Def(TreeNode node, Item structInfo, Stack *stack);
  * @param structInfo 指向结构信息的指针。
  * @param stack 用于符号表管理的栈的指针。
  */
-void DefList(TreeNode node, Item structInfo, Stack *stack);
+void DefList(TreeNode node, Item structInfo);
 
 /**
  * @brief 分析抽象语法树中的 DecList 节点。
@@ -179,7 +179,7 @@ void DefList(TreeNode node, Item structInfo, Stack *stack);
  * @param structInfo 指向结构信息的指针。
  * @param stack 用于符号表管理的栈的指针。
  */
-void DecList(TreeNode node, TypePointer specifier, Item structInfo, Stack *stack);
+void DecList(TreeNode node, TypePointer specifier, Item structInfo);
 
 /**
  * @brief 分析抽象语法树中的 Exp 节点。
@@ -188,7 +188,7 @@ void DecList(TreeNode node, TypePointer specifier, Item structInfo, Stack *stack
  * @param stack 用于符号表管理的栈的指针。
  * @return TypePointer 指向类型信息的指针。
  */
-TypePointer Exp(TreeNode node, Stack *stack);
+TypePointer Exp(TreeNode node);
 
 /**
  * @brief 分析抽象语法树中的 Args 节点。
@@ -197,7 +197,7 @@ TypePointer Exp(TreeNode node, Stack *stack);
  * @param funcInfo 指向函数信息的指针。
  * @param stack 用于符号表管理的栈的指针。
  */
-void Args(TreeNode node, Item funcInfo, Stack *stack);
+void Args(TreeNode node, Item funcInfo);
 
 
 #endif

@@ -1,6 +1,5 @@
 #ifndef INTER_H
 #define INTER_H
-#include "methods.h"
 #include "sematic.h"
 #include "parser.h"
 
@@ -12,7 +11,6 @@ typedef struct _argList* pArgList;
 typedef struct _interCodeList* pInterCodeList;
 
 typedef struct _operand {
-
     enum {
         OP_VARIABLE,
         OP_CONSTANT,
@@ -21,12 +19,10 @@ typedef struct _operand {
         OP_FUNCTION,
         OP_RELOP,
     } kind;
-
     union {
         int value;
         char* name;
     } u;
-
     // boolean isAddr;
 } Operand;
 
@@ -75,7 +71,7 @@ typedef struct _interCode {
 
 typedef struct _interCodes {
     pInterCode code;
-    pInterCodes *prev, *next;
+    pInterCodes prev, next;
 } InterCodes;
 
 typedef struct _arg {
@@ -102,7 +98,8 @@ extern pInterCodeList interCodeList;
 // Operand func
 pOperand newOperand(int kind, ...);
 void deleteOperand(pOperand p);
-void setOperand(pOperand p, int kind, void* val);
+// void setOperand(pOperand p, int kind, void* val);
+void setOperand(pOperand p, int kind, ...);
 void printOp(FILE* fp, pOperand op);
 
 // InterCode func

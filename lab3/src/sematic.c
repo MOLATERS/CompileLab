@@ -1,5 +1,7 @@
 #include "sematic.h"
 
+extern Stk stack;
+
 TypePointer newType(TypeName kind, ...)
 {
     TypePointer p = (TypePointer)malloc(sizeof(Type));
@@ -51,42 +53,42 @@ int is_equal(TypePointer type1, TypePointer type2)
     }
 }
 
-void TreeScan(TreeNode node, Stk stack)
+void TreeScan(TreeNode node)
 {
     if (node == NULL)
         return;
     if (!strcmp(node->name, "ExtDef"))
-        ExDef(node, stack);
-    TreeScan(node->child, stack);
-    TreeScan(node->brother, stack);
+        ExDef(node);
+    TreeScan(node->child);
+    TreeScan(node->brother);
 }
 
 // ExtDef -> Specifier ExtDecList SEMI
 //         | Specifier SEMI
 //         | Specifier FunDec CompSt
-void ExDef(TreeNode node, Stk stack)
+void ExDef(TreeNode node)
 {
     assert(node != NULL);
-    TypePointer stype = Specifier(node->child, stack);
+    TypePointer stype = Specifier(node->child);
     char *secondName = node->child->brother->name;
     // ExtDef -> Specifier ExtDecList SEMI
     if (!strcmp(secondName, "ExtDecList"))
     {
-        ExtDecList(node->child->brother, stype, stack);
+        ExtDecList(node->child->brother, stype);
     }
     // ExtDef -> Specifier FunDec CompSt
     else if (!strcmp(secondName, "FunDec"))
     {
-        FunDec(node->child->brother, stype, stack);
-        CompSt(node->child->brother->brother, stype, stack);
-        Pop(stack);
-        Pop(stack);
+        FunDec(node->child->brother, stype);
+        CompSt(node->child->brother->brother, stype);
+        // Pop();
+        // Pop();
     }
 }
 
 // Specifier -> TYPE
 //            | StructSpecifier
-TypePointer Specifier(TreeNode node, Stk stack)
+TypePointer Specifier(TreeNode node)
 {
     assert(node != NULL);
     TreeNode child = node->child;
@@ -101,12 +103,12 @@ TypePointer Specifier(TreeNode node, Stk stack)
             return newType(INT_TYPE);
         }
     }
-    return StructSpecifier(child, stack);
+    return StructSpecifier(child );
 }
 
 // StructSpecifier -> STRUCT OptTag LC DefList RC
 //                  | STRUCT Tag
-TypePointer StructSpecifier(TreeNode node, Stk stack)
+TypePointer StructSpecifier(TreeNode node )
 {
     assert(node != NULL);
     TypePointer retype = NULL;
@@ -127,14 +129,14 @@ TypePointer StructSpecifier(TreeNode node, Stk stack)
         }
         if (!strcmp(temp->brother->name, "DefList"))
         {
-            DefList(temp->brother, struct_item, stack);
+            DefList(temp->brother, struct_item );
         }
         else
         {
             retype = newType(STRUCT_TYPE, strdup(struct_item->field->name), copyFieldList(struct_item->field->type->detail.stuc.field));
             if (!strcmp(node->child->brother->name, "OptTag"))
             {
-                insertItem(Top(stack), struct_item->field->name, struct_item);
+                insertItem(Top(), struct_item->field->name, struct_item);
             }
             else
             {
@@ -145,7 +147,7 @@ TypePointer StructSpecifier(TreeNode node, Stk stack)
     // StructSpecifier->STRUCT Tag
     else
     {
-        Item struct_item = stack_search_item(stack, temp->child->value_string);
+        Item struct_item = stack_search_item(temp->child->value_string);
         retype = newType(STRUCT_TYPE, strdup(struct_item->field->name), copyFieldList(struct_item->field->type->detail.stuc.field));
     }
     return retype;
@@ -164,7 +166,7 @@ int isStructDef(Item item)
 
 // ExtDecList -> VarDec
 //             | VarDec COMMA ExtDecList
-void ExtDecList(TreeNode node, TypePointer speci, Stk stack)
+void ExtDecList(TreeNode node, TypePointer speci)
 {
     assert(node != NULL);
     // ExtDecList -> VarDec
@@ -172,14 +174,14 @@ void ExtDecList(TreeNode node, TypePointer speci, Stk stack)
     while (temp)
     {
         Item item = VarDec(temp->child, speci);
-        if (conflict(stack, item->field->name))
+        if (conflict(item->field->name))
         {
             printf("Error type 3  at Line %d: Redefined variable %s.\n", temp->lineno, item->field->name);
             deleteItem(item);
         }
         else
         {
-            insertItem(Top(stack), item->field->name, item);
+            insertItem(stack->top->table, item->field->name, item);
         }
         if (temp->child->brother != NULL)
         {
@@ -222,37 +224,37 @@ Item VarDec(TreeNode node, TypePointer speci)
 
 // FunDec -> ID LP VarList RP
 //         | ID LP RP
-void FunDec(TreeNode node, TypePointer retype, Stk stack)
+void FunDec(TreeNode node, TypePointer retype)
 {
     assert(node != NULL);
     Item temp = initItem(initFieldList(node->child->value_string, newType(FUNC_TYPE, 0, NULL, copyType(retype))));
-    if (conflict(stack, temp->field->name))
+    if (conflict(temp->field->name))
     {
         deleteItem(temp);
         temp = NULL;
     }
     else
     {
-        insertItem(Top(stack), temp->field->name, temp);
+        insertItem(Top(), temp->field->name, temp);
     }
     if (!strcmp(node->child->brother->brother->name, "VarList"))
     {
-        VarList(node->child->brother->brother, temp, stack);
-        Push(stack, initTable());
+        VarList(node->child->brother->brother, temp);
+        // Push(initTable());
     }
 }
 
 // VarList -> ParamDec COMMA VarList
 //          | ParamDec
-void VarList(TreeNode node, Item func, Stack *stack)
+void VarList(TreeNode node, Item func)
 {
     assert(node != NULL);
-    Push(stack, initTable());
+    // Push(initTable());
     int argc = 0;
     TreeNode temp = node->child;
     Field cur = NULL;
     // VarList -> ParamDec
-    Field paramDec = ParamDec(temp, stack);
+    Field paramDec = ParamDec(temp );
     func->field->type->detail.func.argv = copyFieldList(paramDec);
     cur = func->field->type->detail.func.argv;
     argc++;
@@ -260,7 +262,7 @@ void VarList(TreeNode node, Item func, Stack *stack)
     while (temp->brother)
     {
         temp = temp->brother->brother->child;
-        paramDec = ParamDec(temp, stack);
+        paramDec = ParamDec(temp );
         if (paramDec)
         {
             cur->next = copyFieldList(paramDec); // 把参数穿起来
@@ -272,15 +274,15 @@ void VarList(TreeNode node, Item func, Stack *stack)
 }
 
 // ParamDec -> Specifier VarDec
-Field ParamDec(TreeNode node, Stack *stack)
+Field ParamDec(TreeNode node)
 {
     assert(node != NULL);
-    TypePointer specifierType = Specifier(node->child, stack);
+    TypePointer specifierType = Specifier(node->child );
     Item p = VarDec(node->child->brother, specifierType);
     // ParamDec -> Specifier VarDec
     if (specifierType)
         deleteType(specifierType);
-    if (conflict(stack, p->field->name))
+    if (conflict( p->field->name))
     {
         printf("Error type 3  at Line %d: Redefined variable %s.\n", node->lineno, p->field->name);
         deleteItem(p);
@@ -288,35 +290,35 @@ Field ParamDec(TreeNode node, Stack *stack)
     }
     else
     {
-        insertItem(Top(stack), p->field->name, p);
+        insertItem(Top(), p->field->name, p);
         return p->field;
     }
 }
 
 // CompSt -> LC DefList StmtList RC
-void CompSt(TreeNode node, TypePointer returnType, Stack *stack)
+void CompSt(TreeNode node, TypePointer returnType) 
 {
     assert(node != NULL);
-    Push(stack, initTable());
+    // Push( initTable());
     TreeNode temp = node->child->brother;
     if (!strcmp(temp->name, "DefList"))
     {
-        DefList(temp, NULL, stack);
+        DefList(temp, NULL );
         temp = temp->brother;
     }
     if (!strcmp(temp->name, "StmtList"))
     {
-        StmtList(temp, returnType, stack);
+        StmtList(temp, returnType );
     }
 }
 
 // StmtList -> Stmt StmtList
 //           | e
-void StmtList(TreeNode node, TypePointer returnType, Stack *stack)
+void StmtList(TreeNode node, TypePointer returnType) 
 {
     while (node)
     {
-        Stmt(node->child, returnType, stack);
+        Stmt(node->child, returnType );
         node = node->child->brother;
     }
     return;
@@ -328,69 +330,69 @@ void StmtList(TreeNode node, TypePointer returnType, Stack *stack)
 //       | IF LP Exp RP Stmt
 //       | IF LP Exp RP Stmt ELSE Stmt
 //       | WHILE LP Exp RP Stmt
-void Stmt(TreeNode node, TypePointer returnType, Stack *stack)
+void Stmt(TreeNode node, TypePointer returnType) 
 {
     assert(node != NULL);
     TypePointer expType = NULL;
     // Stmt -> Exp SEMI
     if (!strcmp(node->child->name, "Exp"))
-        expType = Exp(node->child, stack);
+        expType = Exp(node->child );
     // Stmt -> CompSt
     else if (!strcmp(node->child->name, "CompSt"))
     {
-        CompSt(node->child, returnType, stack);
-        Pop(stack);
+        CompSt(node->child, returnType );
+        // Pop();
     }
     // Stmt -> RETURN Exp SEMI
     else if (!strcmp(node->child->name, "RETURN"))
     {
-        expType = Exp(node->child->brother, stack);
+        expType = Exp(node->child->brother);
     }
     // Stmt -> IF LP Exp RP Stmt
     else if (!strcmp(node->child->name, "IF"))
     {
         TreeNode stmt = node->child->brother->brother->brother->brother;
-        expType = Exp(node->child->brother->brother, stack);
-        Stmt(stmt, returnType, stack);
+        expType = Exp(node->child->brother->brother);
+        Stmt(stmt, returnType);
         // Stmt -> IF LP Exp RP Stmt ELSE Stmt
         if (stmt->brother != NULL)
-            Stmt(stmt->brother->brother, returnType, stack);
+            Stmt(stmt->brother->brother, returnType);
     }
     // Stmt -> WHILE LP Exp RP Stmt
     else if (!strcmp(node->child->name, "WHILE"))
     {
-        expType = Exp(node->child->brother->brother, stack);
-        Stmt(node->child->brother->brother->brother->brother, returnType, stack);
+        expType = Exp(node->child->brother->brother );
+        Stmt(node->child->brother->brother->brother->brother, returnType );
     }
     if (expType)
         deleteType(expType);
 }
 
 // Def -> Specifier DecList SEMI
-void Def(TreeNode node, Item structInfo, Stack *stack)
+void Def(TreeNode node, Item structInfo) 
 {
     assert(node != NULL);
-    TypePointer dectype = Specifier(node->child, stack);
+    TypePointer dectype = Specifier(node->child );
     // 你总会得到一个正确的type
-    DecList(node->child->brother, dectype, structInfo, stack);
+    DecList(node->child->brother, dectype, structInfo );
     if (dectype)
         deleteType(dectype);
 }
 
 // DefList -> Def DefList
 //          | e
-void DefList(TreeNode node, Item structInfo, Stack *stack)
+void DefList(TreeNode node, Item structInfo)
 {
     while (node)
     {
-        Def(node->child, structInfo, stack);
+        Def(node->child, structInfo );
         node = node->child->brother;
     }
 }
 
 // Dec -> VarDec
 //      | VarDec ASSIGNOP Exp
-void Dec(TreeNode node, TypePointer specifier, Item structInfo, Stack *stack)
+void Dec(TreeNode node, TypePointer specifier, Item structInfo )
 {
     assert(node != NULL);
     // Dec -> VarDec
@@ -426,7 +428,7 @@ void Dec(TreeNode node, TypePointer specifier, Item structInfo, Stack *stack)
             // 判断返回的item有无冲突，无冲突放入表中，有冲突报错delete
             // printf("VarDec前夕\n");
             Item decitem = VarDec(node->child, specifier); // 我认为这里包含了结构体变量的定义
-            if (conflict(stack, decitem->field->name))
+            if (conflict( decitem->field->name))
             {
                 // 出现冲突，报错
                 printf("Error type 3  at Line %d: Redefined variable %s.\n", node->lineno,
@@ -435,7 +437,7 @@ void Dec(TreeNode node, TypePointer specifier, Item structInfo, Stack *stack)
             }
             else
             {
-                insertItem(Top(stack), decitem->field->name, decitem);
+                insertItem(Top(), decitem->field->name, decitem);
             }
         }
     }
@@ -443,8 +445,8 @@ void Dec(TreeNode node, TypePointer specifier, Item structInfo, Stack *stack)
     else
     {
         Item decitem = VarDec(node->child, specifier);
-        TypePointer exptype = Exp(node->child->brother->brother, stack);
-        if (conflict(stack, decitem->field->name))
+        TypePointer exptype = Exp(node->child->brother->brother );
+        if (conflict( decitem->field->name))
         {
             // 出现冲突，报错
             printf("Error type 3  at line %d Redefined variable %s.\n", node->lineno, decitem->field->name);
@@ -466,7 +468,7 @@ void Dec(TreeNode node, TypePointer specifier, Item structInfo, Stack *stack)
         }
         else
         {
-            insertItem(Top(stack), decitem->field->name, decitem);
+            insertItem(Top(), decitem->field->name, decitem);
         }
         // exp不出意外应该返回一个无用的type，删除
         if (exptype)
@@ -476,13 +478,13 @@ void Dec(TreeNode node, TypePointer specifier, Item structInfo, Stack *stack)
 
 // DecList -> Dec
 //          | Dec COMMA DecList
-void DecList(TreeNode node, TypePointer specifier, Item structInfo, Stack *stack)
+void DecList(TreeNode node, TypePointer specifier, Item structInfo )
 {
     assert(node != NULL);
     TreeNode temp = node;
     while (temp)
     {
-        Dec(temp->child, specifier, structInfo, stack);
+        Dec(temp->child, specifier, structInfo );
         if (temp->child->brother)
             temp = temp->child->brother->brother;
         else
@@ -508,7 +510,7 @@ void DecList(TreeNode node, TypePointer specifier, Item structInfo, Stack *stack
 //      | ID
 //      | INT
 //      | FLOAT
-TypePointer Exp(TreeNode node, Stack *stack)
+TypePointer Exp(TreeNode node )
 {
     assert(node != NULL);
     TreeNode t = node->child;
@@ -518,8 +520,8 @@ TypePointer Exp(TreeNode node, Stack *stack)
         // 基本数学运算符
         if (strcmp(t->brother->name, "LB") && strcmp(t->brother->name, "DOT"))
         {
-            TypePointer p1 = Exp(t, stack);
-            TypePointer p2 = Exp(t->brother->brother, stack);
+            TypePointer p1 = Exp(t );
+            TypePointer p2 = Exp(t->brother->brother );
             TypePointer returnType = NULL;
             // Exp -> Exp ASSIGNOP Exp
             if (!strcmp(t->brother->name, "ASSIGNOP"))
@@ -594,8 +596,8 @@ TypePointer Exp(TreeNode node, Stack *stack)
             if (!strcmp(t->brother->name, "LB"))
             {
                 // 数组
-                TypePointer p1 = Exp(t, stack);
-                TypePointer p2 = Exp(t->brother->brother, stack);
+                TypePointer p1 = Exp(t );
+                TypePointer p2 = Exp(t->brother->brother );
                 TypePointer returnType = NULL;
                 if (!p1)
                 {
@@ -625,7 +627,7 @@ TypePointer Exp(TreeNode node, Stack *stack)
             // Exp -> Exp DOT ID
             else
             {
-                TypePointer p1 = Exp(t, stack);
+                TypePointer p1 = Exp(t );
                 TypePointer returnType = NULL;
                 if (!p1 || p1->kind != STRUCT_TYPE || !p1->detail.stuc.name)
                 {
@@ -663,7 +665,7 @@ TypePointer Exp(TreeNode node, Stack *stack)
     //       | NOT Exp
     else if (!strcmp(t->name, "MINUS") || !strcmp(t->name, "NOT"))
     {
-        TypePointer p1 = Exp(t->brother, stack);
+        TypePointer p1 = Exp(t->brother );
         TypePointer returnType = NULL;
         if (!p1 || (p1->kind != INT_TYPE && p1->kind != FLOAT_TYPE))
         {
@@ -680,13 +682,13 @@ TypePointer Exp(TreeNode node, Stack *stack)
     }
     else if (!strcmp(t->name, "LP"))
     {
-        return Exp(t->brother, stack);
+        return Exp(t->brother );
     }
     // Exp -> ID LP Args RP
     //		| ID LP RP
     else if (!strcmp(t->name, "ID") && t->brother)
     {
-        Item funcInfo = stack_search_item(stack, t->value_string);
+        Item funcInfo = stack_search_item( t->value_string);
         assert(funcInfo->field->type->kind == FUNC_TYPE);
         if (funcInfo == NULL)
         {
@@ -697,7 +699,7 @@ TypePointer Exp(TreeNode node, Stack *stack)
         // Exp -> ID LP Args RP
         else if (!strcmp(t->brother->brother->name, "Args"))
         {
-            Args(t->brother->brother, funcInfo, stack);
+            Args(t->brother->brother, funcInfo );
             return copyType(funcInfo->field->type->detail.func.type);
         }
         // Exp -> ID LP RP
@@ -710,7 +712,7 @@ TypePointer Exp(TreeNode node, Stack *stack)
     // Exp -> ID
     else if (!strcmp(t->name, "ID"))
     {
-        Item tp = stack_search_item(stack, t->value_string);
+        Item tp = stack_search_item( t->value_string);
         if (tp == NULL || isStructDef(tp))
         { // 也不能是函数定义
             printf("Error type 1  at Line %d:  Undefined variable \"%s\".\n", t->lineno, t->value_string);
@@ -737,28 +739,43 @@ TypePointer Exp(TreeNode node, Stack *stack)
     }
 }
 
-// Args -> Exp COMMA Args
-//       | Exp
-void Args(TreeNode node, Item funcInfo, Stack *stack)
-{
+
+void Args(TreeNode node, Item funcInfo) {
     assert(node != NULL);
+    // Args -> Exp COMMA Args
+    //       | Exp
+    // printTreeInfo(node, 0);
     TreeNode temp = node;
     Field arg = funcInfo->field->type->detail.func.argv;
-    while (temp)
-    {
-        assert(arg == NULL);
-        TypePointer realType = Exp(temp->child, stack);
-        if (realType)
-            deleteType(realType);
-        arg = arg->next;
-        if (temp->child->brother)
-        {
-            temp = temp->child->brother->brother;
+    // printf("-----function atgs-------\n");
+    // printFieldList(arg);
+    // printf("---------end-------------\n");
+    while (temp) {
+        if (arg == NULL) {
+            printf(
+                "Error type 9 at line %d too many arguments to function \"%s\", except %d args.",node->lineno, funcInfo->field->name, funcInfo->field->type->detail.func.argc);
+            break;
         }
-        else
-        {
+        TypePointer realType = Exp(temp->child);
+
+        if (!is_equal(realType, arg->type)) {
+
+            printf("Type 9 at line %d Function \"%s\" is not applicable for arguments.",node->lineno, funcInfo->field->name);
+
+            if (realType) deleteType(realType);
+            return;
+        }
+        if (realType) deleteType(realType);
+
+        arg = arg->next;
+        if (temp->child->brother) {
+            temp = temp->child->brother->brother;
+        } else {
             break;
         }
     }
-    assert(arg != NULL);
+    if (arg != NULL) {
+        printf("Type 9 at Line %d too few arguments to function \"%s\", except %d args.",node->lineno, funcInfo->field->name, funcInfo->field->type->detail.func.argc);
+    }
 }
+
