@@ -124,9 +124,11 @@ void addInterCode(pInterCodeList interCodeList, pInterCodes newCode);
 // traverse func
 pOperand newTemp();
 pOperand newLabel();
+
 int getSize(TypePointer type);
 void genInterCodes(TreeNode node);
 void genInterCode(int kind,int argc, ...);
+
 void translateExp(TreeNode node, pOperand place);
 void translateArgs(TreeNode node, pArgList argList);
 void translateCond(TreeNode node, pOperand labelTrue, pOperand labelFalse);

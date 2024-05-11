@@ -15,7 +15,7 @@ if [ ! -d "./output/" ];
     then mkdir output
 fi
 
-rm "./output/*.ir"
+rm ./output/*.ir
 
 cat testlist | while read line
 do 
